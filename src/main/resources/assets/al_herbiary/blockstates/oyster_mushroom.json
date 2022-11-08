@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "al_herbiary:block/oyster_mushroom", "uvlock": false },
+    "facing=east":  { "model": "al_herbiary:block/oyster_mushroom", "y":  90, "uvlock": false },
+    "facing=south": { "model": "al_herbiary:block/oyster_mushroom", "y": 180, "uvlock": false },
+    "facing=west":  { "model": "al_herbiary:block/oyster_mushroom", "y": 270, "uvlock": false }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "herbiary",
+  "version": "${version}",
+  "name": "Herbiary",
+  "description": "A mod that creates a more survival themed Minecraft. Adds herbs, new weapons, mobs, all in the theme of Vanilla Minecraft.",
+  "authors": [
+    "Avetharun"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/al_herbiary/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.avetharun.herbiary.client.HerbiaryClient"
+    ],
+    "main": [
+      "com.avetharun.herbiary.Herbiary"
+    ]
+  },
+  "mixins": [
+    "herbiary.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.9",
+    "fabric": "*",
+    "minecraft": "1.19.2",
+    "seasons" : "*"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.avetharun.herbiary.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "PlayerDeathMixin",
+    "ShowBleedParticlesMixin"
+  ],
+  "client": [
+    "HotbarItemRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

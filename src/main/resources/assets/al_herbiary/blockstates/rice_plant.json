@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "al_herbiary:block/rice_plant_stage_1"
+    },
+    "age=1": {
+      "model": "al_herbiary:block/rice_plant_stage_1"
+    },
+    "age=2": {
+      "model": "al_herbiary:block/rice_plant_stage_2"
+    },
+    "age=3": {
+      "model": "al_herbiary:block/rice_plant_stage_3"
+    },
+    "age=4": {
+      "model": "al_herbiary:block/rice_plant_stage_3"
+    },
+    "age=5": {
+      "model": "al_herbiary:block/rice_plant_stage_3"
+    },
+    "age=6": {
+      "model": "al_herbiary:block/rice_plant_stage_3"
+    },
+    "age=7": {
+      "model": "al_herbiary:block/rice_plant_stage_3"
+    }
+  }
+}

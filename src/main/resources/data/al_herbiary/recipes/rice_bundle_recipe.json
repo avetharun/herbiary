@@ -1,0 +1,16 @@
+
+
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {"item": "al_herbiary:rice_plant"},
+    {"item": "al_herbiary:rice_plant"},
+    {"item": "al_herbiary:rice_plant"},
+    {"item": "minecraft:leather"}
+  ],
+  "result": {
+    "item": "al_herbiary:rice_bundle",
+    "count": 1
+  }
+}
+

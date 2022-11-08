@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "al_herbiary:block/rot_log_top",
+    "side": "al_herbiary:block/rot_log"
+  }
+}

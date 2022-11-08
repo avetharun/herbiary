@@ -1,0 +1,26 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.boar.default": {
+			"loop": true,
+			"bones": {
+				"tail": {
+					"rotation": {
+						"vector": [-65, 0, 0]
+					}
+				},
+				"ear_r": {
+					"rotation": {
+						"vector": [0, 0, -70]
+					}
+				},
+				"ear_l": {
+					"rotation": {
+						"vector": [0, 0, 60]
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}
