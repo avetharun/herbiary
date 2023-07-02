@@ -1,0 +1,248 @@
+{
+  "variants": {
+
+    "facing=south,lit=true,age=0,occupied=true": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 180
+    },
+    "facing=west,lit=true,age=0,occupied=true": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 270
+    },
+    "facing=north,lit=true,age=0,occupied=true": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 0
+    },
+    "facing=east,lit=true,age=0,occupied=true": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 90
+    },
+    "facing=north,lit=true,age=1,occupied=true": {
+      "model": "minecraft:block/campfire_lit_1_low",
+      "y": 0
+    },
+    "facing=east,lit=true,age=1,occupied=true": {
+      "model": "minecraft:block/campfire_lit_1_low",
+      "y": 90
+    },
+    "facing=south,lit=true,age=1,occupied=true": {
+      "model": "minecraft:block/campfire_lit_1_low",
+      "y": 180
+    },
+    "facing=west,lit=true,age=1,occupied=true": {
+      "model": "minecraft:block/campfire_lit_1_low",
+      "y": 270
+    },
+    "facing=north,lit=true,age=2,occupied=true": {
+      "model": "minecraft:block/campfire_lit_2_low",
+      "y": 0
+    },
+    "facing=east,lit=true,age=2,occupied=true": {
+      "model": "minecraft:block/campfire_lit_2_low",
+      "y": 90
+    },
+    "facing=south,lit=true,age=2,occupied=true": {
+      "model": "minecraft:block/campfire_lit_2_low",
+      "y": 180
+    },
+    "facing=west,lit=true,age=2,occupied=true": {
+      "model": "minecraft:block/campfire_lit_2_low",
+      "y": 270
+    },
+    "facing=north,lit=true,age=3,occupied=true": {
+      "model": "minecraft:block/campfire_lit_3_low",
+      "y": 0
+    },
+    "facing=east,lit=true,age=3,occupied=true": {
+      "model": "minecraft:block/campfire_lit_3_low",
+      "y": 90
+    },
+    "facing=south,lit=true,age=3,occupied=true": {
+      "model": "minecraft:block/campfire_lit_3_low",
+      "y": 180
+    },
+    "facing=west,lit=true,age=3,occupied=true": {
+      "model": "minecraft:block/campfire_lit_3_low",
+      "y": 270
+    },
+    "facing=north,lit=true,age=4,occupied=true": {
+      "model": "minecraft:block/campfire_lit_4_low",
+      "y": 0
+    },
+    "facing=east,lit=true,age=4,occupied=true": {
+      "model": "minecraft:block/campfire_lit_4_low",
+      "y": 90
+    },
+    "facing=south,lit=true,age=4,occupied=true": {
+      "model": "minecraft:block/campfire_lit_4_low",
+      "y": 180
+    },
+    "facing=west,lit=true,age=4,occupied=true": {
+      "model": "minecraft:block/campfire_lit_4_low",
+      "y": 270
+    },
+
+
+
+    "facing=north,lit=true,age=0,occupied=false": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 0
+    },
+    "facing=east,lit=true,age=0,occupied=false": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 90
+    },
+    "facing=south,lit=true,age=0,occupied=false": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 180
+    },
+    "facing=west,lit=false,age=0,occupied=false": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 270
+    },
+    "facing=north,lit=false,age=0,occupied=false": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 0
+    },
+    "facing=east,lit=false,age=0,occupied=false": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 90
+    },
+    "facing=south,lit=false,age=0,occupied=false": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 180
+    },
+    "facing=west,lit=true,age=0,occupied=false": {
+      "model": "minecraft:block/campfire_unlit_0",
+      "y": 270
+    },
+    "facing=north,lit=true,age=1,occupied=false": {
+      "model": "minecraft:block/campfire_lit_1",
+      "y": 0
+    },
+    "facing=east,lit=true,age=1,occupied=false": {
+      "model": "minecraft:block/campfire_lit_1",
+      "y": 90
+    },
+    "facing=south,lit=true,age=1,occupied=false": {
+      "model": "minecraft:block/campfire_lit_1",
+      "y": 180
+    },
+    "facing=west,lit=true,age=1,occupied=false": {
+      "model": "minecraft:block/campfire_lit_1",
+      "y": 270
+    },
+    "facing=north,lit=true,age=2,occupied=false": {
+      "model": "minecraft:block/campfire_lit_2",
+      "y": 0
+    },
+    "facing=east,lit=true,age=2,occupied=false": {
+      "model": "minecraft:block/campfire_lit_2",
+      "y": 90
+    },
+    "facing=south,lit=true,age=2,occupied=false": {
+      "model": "minecraft:block/campfire_lit_2",
+      "y": 180
+    },
+    "facing=west,lit=true,age=2,occupied=false": {
+      "model": "minecraft:block/campfire_lit_2",
+      "y": 270
+    },
+    "facing=north,lit=true,age=3,occupied=false": {
+      "model": "minecraft:block/campfire_lit_3",
+      "y": 0
+    },
+    "facing=east,lit=true,age=3,occupied=false": {
+      "model": "minecraft:block/campfire_lit_3",
+      "y": 90
+    },
+    "facing=south,lit=true,age=3,occupied=false": {
+      "model": "minecraft:block/campfire_lit_3",
+      "y": 180
+    },
+    "facing=west,lit=true,age=3,occupied=false": {
+      "model": "minecraft:block/campfire_lit_3",
+      "y": 270
+    },
+    "facing=north,lit=true,age=4,occupied=false": {
+      "model": "minecraft:block/campfire_lit_4",
+      "y": 0
+    },
+    "facing=east,lit=true,age=4,occupied=false": {
+      "model": "minecraft:block/campfire_lit_4",
+      "y": 90
+    },
+    "facing=south,lit=true,age=4,occupied=false": {
+      "model": "minecraft:block/campfire_lit_4",
+      "y": 180
+    },
+    "facing=west,lit=true,age=4,occupied=false": {
+      "model": "minecraft:block/campfire_lit_4",
+      "y": 270
+    },
+    "facing=north,lit=false,age=1": {
+      "model": "minecraft:block/campfire_unlit_1",
+      "y": 0
+    },
+    "facing=east,lit=false,age=1": {
+      "model": "minecraft:block/campfire_unlit_1",
+      "y": 90
+    },
+    "facing=south,lit=false,age=1": {
+      "model": "minecraft:block/campfire_unlit_1",
+      "y": 180
+    },
+    "facing=west,lit=false,age=1": {
+      "model": "minecraft:block/campfire_unlit_1",
+      "y": 270
+    },
+    "facing=north,lit=false,age=2": {
+      "model": "minecraft:block/campfire_unlit_2",
+      "y": 0
+    },
+    "facing=east,lit=false,age=2": {
+      "model": "minecraft:block/campfire_unlit_2",
+      "y": 90
+    },
+    "facing=south,lit=false,age=2": {
+      "model": "minecraft:block/campfire_unlit_2",
+      "y": 180
+    },
+    "facing=west,lit=false,age=2": {
+      "model": "minecraft:block/campfire_unlit_2",
+      "y": 270
+    },
+    "facing=north,lit=false,age=3": {
+      "model": "minecraft:block/campfire_unlit_3",
+      "y": 0
+    },
+    "facing=east,lit=false,age=3": {
+      "model": "minecraft:block/campfire_unlit_3",
+      "y": 90
+    },
+    "facing=south,lit=false,age=3": {
+      "model": "minecraft:block/campfire_unlit_3",
+      "y": 180
+    },
+    "facing=west,lit=false,age=3": {
+      "model": "minecraft:block/campfire_unlit_3",
+      "y": 270
+    },
+    "facing=north,lit=false,age=4": {
+      "model": "minecraft:block/campfire_unlit_4",
+      "y": 0
+    },
+    "facing=east,lit=false,age=4": {
+      "model": "minecraft:block/campfire_unlit_4",
+      "y": 90
+    },
+    "facing=south,lit=false,age=4": {
+      "model": "minecraft:block/campfire_unlit_4",
+      "y": 180
+    },
+    "facing=west,lit=false,age=4": {
+      "model": "minecraft:block/campfire_unlit_4",
+      "y": 270
+    }
+  }
+}

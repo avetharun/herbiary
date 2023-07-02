@@ -1,0 +1,66 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 256,
+				"texture_height": 256,
+				"visible_bounds_width": 6,
+				"visible_bounds_height": 3.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "root",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "tent",
+					"parent": "root",
+					"pivot": [-23, 1, 0],
+					"cubes": [
+						{"origin": [22, 0, -29], "size": [2, 45, 58], "pivot": [23, 1, 0], "rotation": [0, 0, -30], "uv": [0, 0]},
+						{"origin": [-1, 38, -30], "size": [2, 2, 60], "uv": [0, 194]},
+						{"origin": [-1, 0, -26], "size": [2, 39, 2], "uv": [8, 0]},
+						{"origin": [-1, 0, 24], "size": [2, 39, 2], "uv": [0, 0]},
+						{"origin": [-24, 0, -29], "size": [2, 45, 58], "pivot": [-23, 1, 0], "rotation": [0, 0, 30], "uv": [62, 45]}
+					]
+				},
+				{
+					"name": "bed",
+					"parent": "root",
+					"pivot": [8, 0, -17],
+					"cubes": [
+						{"origin": [-8, 0, -17], "size": [16, 1, 34], "uv": [138, 205]},
+						{"origin": [-8, 1, -17.05], "size": [16, 2, 34.075], "uv": [130, 52]}
+					]
+				},
+				{
+					"name": "stand",
+					"parent": "root",
+					"pivot": [13.5, 2.73726, -14],
+					"rotation": [0, -90, 0],
+					"cubes": [
+						{"origin": [8.5, 4.5, -19.5], "size": [10, 1, 11], "uv": [11, 39]},
+						{"origin": [14.5, 5.5, -10.5], "size": [8, 1, 1], "pivot": [13.5, 5, -10], "rotation": [0, 0, 45], "uv": [26, 23]},
+						{"origin": [14.5, 5.5, -18.5], "size": [8, 1, 1], "pivot": [13.5, 5, -10], "rotation": [0, 0, 45], "uv": [26, 23]},
+						{"origin": [4.5, 5.5, -10.5], "size": [8, 1, 1], "pivot": [13.5, 5, -10], "rotation": [0, 0, -45], "uv": [26, 23]},
+						{"origin": [4.5, 5.5, -18.5], "size": [8, 1, 1], "pivot": [13.5, 5, -10], "rotation": [0, 0, -45], "uv": [26, 23]}
+					]
+				},
+				{
+					"name": "storage",
+					"parent": "stand",
+					"pivot": [10.5, 9, -14],
+					"rotation": [0, -90, 0],
+					"cubes": [
+						{"origin": [6, 5.5, -21], "size": [9, 6, 8], "uv": [75, 162]},
+						{"origin": [8, 6.5, -22], "size": [5, 4, 2], "uv": [27, 7]},
+						{"origin": [10, 8.5, -13], "size": [1, 2, 1], "uv": [75, 199]}
+					]
+				}
+			]
+		}
+	]
+}

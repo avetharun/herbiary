@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
+    id 'fabric-loom' version '1.2-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -7,12 +7,36 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
+    maven {
+        name = "CottonMC"
+        url = "https://server.bbkr.space/artifactory/libs-release"
+    }
     maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
     // Add repositories to retrieve artifacts from in here.
     // You should only use this when depending on other mods because
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
+
+    maven {
+        name "tterrag maven"
+        url "https://maven.tterrag.com/"
+    }
+    maven { url 'https://jitpack.io' }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+    mavenCentral()
+    maven { url 'https://maven.wispforest.io' }
+    maven { url 'https://maven.blamejared.com' }
 }
 
 dependencies {
@@ -24,7 +48,17 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     // Geckolib
-    modImplementation "software.bernie.geckolib:geckolib-fabric-${project.geckolib_version}"
+    modImplementation "maven.modrinth:geckolib:B4kTh670"
+    compileOnly "maven.modrinth:modmenu:zv46i3PW"
+    include modImplementation("maven.modrinth:dpu:9Mb3Nax3")
+    include modImplementation("maven.modrinth:jei:8nNvyvoj")
+    include modImplementation("maven.modrinth:fabric-seasons:dJtxMqxE")
+    modImplementation "io.wispforest:owo-lib:${project.owo_version}"
+    annotationProcessor "io.wispforest:owo-lib:${project.owo_version}"
+    include "io.wispforest:owo-sentinel:${project.owo_version}"
+    include implementation(files("lib/mixinextras-fabric-0.2.0-beta.8.jar"))
+    include annotationProcessor(files("lib/mixinextras-fabric-0.2.0-beta.8.jar"))
+    modImplementation "vazkii.patchouli:Patchouli:1.20.1-80-FABRIC-SNAPSHOT"
 }
 
 processResources {
@@ -47,7 +81,9 @@ tasks.withType(JavaCompile).configureEach {
         it.options.release = targetJavaVersion
     }
 }
-
+loom {
+    accessWidenerPath = file("src/main/resources/herbiary.accesswidener")
+}
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     if (JavaVersion.current() < javaVersion) {

@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "al_herbiary:block/amanita_mushroom", "uvlock": false }
+  }
+}

@@ -11,6 +11,7 @@
   "license": "MIT",
   "icon": "assets/al_herbiary/icon.png",
   "environment": "*",
+  "accessWidener" : "herbiary.accesswidener",
   "entrypoints": {
     "client": [
       "com.avetharun.herbiary.client.HerbiaryClient"
@@ -25,7 +26,33 @@
   "depends": {
     "fabricloader": ">=0.14.9",
     "fabric": "*",
-    "minecraft": "1.19.2",
-    "seasons" : "*"
+    "minecraft": ">=1.19.2",
+    "seasons": "*"
+  },
+  "recommends": {
+    "modmenu-badges-lib": "*",
+    "modmenu": ">=4.1.0"
+  },
+
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/UgAu3rEyrJ"
+      },
+      "parent": {
+        "id": "al_herbiary",
+        "name": "Herbiary",
+        "description": "Mod which overhauls Minecraft's vanilla survival experience entirely",
+        "icon": "assets/al_herbiary/icon.png"
+      },
+      "update_checker": true
+    },
+    "mcb": [
+      {
+        "name": "Overhaul",
+        "fillColor": -16777216,
+        "outlineColor": -13457326
+      }
+    ]
   }
 }

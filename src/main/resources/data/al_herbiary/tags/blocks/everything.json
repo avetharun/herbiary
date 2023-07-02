@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "al_herbiary:rot_log",
+    "al_herbiary:rot_slab",
+    "al_herbiary:rot_planks",
+    "al_herbiary:rot_stairs",
+    "al_herbiary:bird_nest",
+    "al_herbiary:mortar",
+    "al_herbiary:crafting_mat"
+  ]
+}

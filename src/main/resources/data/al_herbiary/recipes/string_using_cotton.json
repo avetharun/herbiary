@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "al_herbiary:cotton"
+    }
+  ],
+  "result": {
+    "item": "minecraft:string",
+    "count": 1
+  }
+}

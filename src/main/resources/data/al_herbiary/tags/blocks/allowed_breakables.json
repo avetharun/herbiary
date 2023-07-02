@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "#al_herbiary:everything",
+    "al_herbiary:cattail",
+    "#minecraft:planks",
+    "#minecraft:pressure_plates",
+    "#minecraft:rails",
+    "#minecraft:wooden_buttons",
+    "#minecraft:wooden_doors",
+    "#minecraft:wooden_fences",
+    "#minecraft:wooden_slabs",
+    "#minecraft:wooden_stairs",
+    "#minecraft:wooden_trapdoors",
+    "#minecraft:wool"
+  ]
+}

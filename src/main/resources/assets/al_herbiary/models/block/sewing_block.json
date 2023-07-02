@@ -1,0 +1,39 @@
+{
+	"credit": "Made with Blockbench",
+	"texture_size": [32, 32],
+	"textures": {
+		"0": "al_herbiary:block/sewing_mat",
+		"particle": "al_herbiary:block/sewing_mat"
+	},
+	"elements": [
+		{
+			"from": [2, 0, 2],
+			"to": [14, 0.5, 14],
+			"faces": {
+				"north": {"uv": [6, 0, 12, 0.5], "texture": "#0"},
+				"east": {"uv": [6, 0.5, 12, 1], "texture": "#0"},
+				"south": {"uv": [6, 1, 12, 1.5], "texture": "#0"},
+				"west": {"uv": [1.5, 6, 7.5, 6.5], "texture": "#0"},
+				"up": {"uv": [6, 6, 0, 0], "texture": "#0"}
+			}
+		},
+		{
+			"from": [9, 0.5, 4],
+			"to": [11, 2.5, 6],
+			"faces": {
+				"north": {"uv": [6, 1.5, 7, 2.5], "texture": "#0"},
+				"east": {"uv": [6, 2.5, 7, 3.5], "texture": "#0"},
+				"south": {"uv": [6, 3.5, 7, 4.5], "texture": "#0"},
+				"west": {"uv": [6, 4.5, 7, 5.5], "texture": "#0"},
+				"up": {"uv": [2.5, 7.5, 1.5, 6.5], "texture": "#0"}
+			}
+		},
+		{
+			"from": [8, 0.6, 4],
+			"to": [11, 0.6, 9],
+			"faces": {
+				"up": {"uv": [1.5, 8.5, 0, 6], "texture": "#0"}
+			}
+		}
+	]
+}

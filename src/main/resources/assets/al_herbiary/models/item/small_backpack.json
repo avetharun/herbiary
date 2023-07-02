@@ -1,0 +1,14 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "al_herbiary:item/backpack"
+  },
+  "overrides":[
+    {
+      "predicate": {
+        "is_fixed": true
+      },
+      "model": "al_herbiary:item/small_backpack_hook"
+    }
+    ]
+}

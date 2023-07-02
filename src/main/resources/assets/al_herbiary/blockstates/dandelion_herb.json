@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "age=3": { "model": "al_herbiary:block/dandelion/dandelion_herb"},
+    "age=0": { "model": "al_herbiary:block/dandelion/dandelion_herb_0"},
+    "age=1": { "model": "al_herbiary:block/dandelion/dandelion_herb_1"},
+    "age=2": { "model": "al_herbiary:block/dandelion/dandelion_herb_2"}
+  }
+}

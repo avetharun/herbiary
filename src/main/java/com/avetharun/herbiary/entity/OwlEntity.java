@@ -1,20 +1,18 @@
 package com.avetharun.herbiary.entity;
 
+import com.avetharun.herbiary.Herbiary;
 import com.avetharun.herbiary.Items.ItemEntities.HerbiarySpearItemEntity;
+import com.avetharun.herbiary.block.NestBlockEntity;
+import com.avetharun.herbiary.ModItems;
+import com.avetharun.herbiary.hUtil.alib;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.*;
-import net.minecraft.entity.ai.FuzzyTargeting;
-import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.control.FlightMoveControl;
 import net.minecraft.entity.ai.control.LookControl;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.BirdNavigation;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
-import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -23,30 +21,25 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.*;
 import net.minecraft.entity.passive.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleTypes;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.tag.BlockTags;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.spawner.Spawner;
+import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.*;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
 
-public class OwlEntity extends TameableShoulderEntity implements Angerable, IAnimatable, Flutterer {
-    private UUID targetUuid;
-
+public class OwlEntity extends TameableShoulderEntity implements Angerable, GeoEntity, Flutterer {
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    public UUID targetUuid;
     protected EntityNavigation createNavigation(World world) {
         BirdNavigation birdNavigation = new BirdNavigation(this, world);
         birdNavigation.setCanPathThroughDoors(false);
@@ -60,9 +53,9 @@ public class OwlEntity extends TameableShoulderEntity implements Angerable, IAni
                 dimensions(EntityDimensions.fixed(0.35f,0.9f))
                 .spawnableFarFromPlayer()
                 .spawnGroup(SpawnGroup.MONSTER)
-                .specificSpawnBlocks(Blocks.OAK_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.SPRUCE_LEAVES,
-                        Blocks.OAK_LOG,
-                        Blocks.SPRUCE_LOG)
+                .specificSpawnBlocks(
+                        ModItems.BIRD_NEST_BLOCK.getLeft()
+                )
                 .build();
     }
     public Goal action;
@@ -86,7 +79,6 @@ public class OwlEntity extends TameableShoulderEntity implements Angerable, IAni
         this.goalSelector.remove(action);
         this.action = null;
     }
-    private final AnimationFactory factory = new AnimationFactory(this);
     private static final TrackedData<Integer> ANGER_TIME = DataTracker.registerData(OwlEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> FLYING = DataTracker.registerData(OwlEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> FLYING_AWAY = DataTracker.registerData(OwlEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -95,11 +87,22 @@ public class OwlEntity extends TameableShoulderEntity implements Angerable, IAni
 
     @Override
     public boolean isInAir() {
-        return !this.onGround;
+        return !this.isOnGround();
     }
     public static boolean canMobSpawn(EntityType<? extends MobEntity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
         BlockPos blockPos = pos.down();
         return spawnReason == SpawnReason.SPAWNER || world.getBlockState(blockPos).isIn(BlockTags.LEAVES) || world.getBlockState(blockPos).isIn(BlockTags.OVERWORLD_NATURAL_LOGS);
+    }
+
+    @Override
+    public EntityView method_48926() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public LivingEntity getOwner() {
+        return super.getOwner();
     }
 
     class OwlLookControl extends LookControl {
@@ -111,29 +114,6 @@ public class OwlEntity extends TameableShoulderEntity implements Angerable, IAni
             if (!OwlEntity.this.isFlying()) {
                 super.tick();
             }
-        }
-    }
-
-    private static enum OwlMovementType {
-        CIRCLE,
-        SWOOP,
-        PERCH,
-        ROOST,
-        HUNT;
-
-        private OwlMovementType() {
-        }
-    }
-    OwlMovementType movementType;
-
-    abstract class MovementGoal extends FlyGoal {
-        public MovementGoal() {
-            super(OwlEntity.this, 1);
-            this.setControls(EnumSet.of(Control.MOVE));
-        }
-
-        protected boolean isNearTarget() {
-            return OwlEntity.this.targetPosition.squaredDistanceTo(OwlEntity.this.getX(), OwlEntity.this.getY(), OwlEntity.this.getZ()) < 4.0;
         }
     }
 
@@ -169,6 +149,7 @@ public class OwlEntity extends TameableShoulderEntity implements Angerable, IAni
     public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource) {
         return false; // ignore fall damage!
     }
+    public BlockPos nest;
 
     protected OwlEntity(EntityType<? extends TameableShoulderEntity> entityType, World world) {
         super(entityType, world);
@@ -176,15 +157,28 @@ public class OwlEntity extends TameableShoulderEntity implements Angerable, IAni
         this.moveControl = new FlightMoveControl(this, 15, false);
     }
 
+    @Nullable
+    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
+        if (entityData == null) {
+            entityData = new PassiveEntity.PassiveData(false);
+        }
+        if (this.nest == null || this.nest == this.getBlockPos()) { this.nest = BlockPos.ORIGIN; }
+        // 0-20 ticks (or 0 - 1 second)
+        return super.initialize(world, difficulty, spawnReason, (EntityData)entityData, entityNbt);
+    }
+
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+        super.writeCustomDataToNbt(nbt);
+        nbt.putLongArray("Nest", alib.getBlockPosAsArray(this.nest));
+    }
+
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        super.readCustomDataFromNbt(nbt);
+        this.nest = alib.getBlockPosFromArray(nbt.getLongArray("Nest"));
+    }
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new MeleeAttackGoal(this, 1.0, true));
-        this.targetSelector.add(4, new ActiveTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::shouldAngerAt));
-
-
-        this.goalSelector.add(3, new FlyOntoTreeGoal(this, 5.0));
-        this.goalSelector.add(10, new LookAtEntityGoal(this, PlayerEntity.class, 32));
-        this.goalSelector.add(10, new LookAroundGoal(this));
+        this.goalSelector.add(0, new OwlEntityAIGoal(this, 1));
     }
 
     @Override
@@ -198,7 +192,7 @@ public class OwlEntity extends TameableShoulderEntity implements Angerable, IAni
     }
 
     public boolean tryAttack(Entity target) {
-        return target.damage(DamageSource.mob(this), 3.0F);
+        return target.damage(this.getDamageSources().thrown(target, this), 1f);
     }
 
     private static final Set<EntityType> TargettableEntities = Set.of(
@@ -249,31 +243,14 @@ public class OwlEntity extends TameableShoulderEntity implements Angerable, IAni
     public void setFlyingAway(boolean state) {
         this.dataTracker.set(FLYING_AWAY, state);
     }
-    @Override
-    public AnimationFactory getFactory() {
-        return this.factory;
-    }
 
     @Override
     public boolean damage(DamageSource source, float amount) {
-        if (source.isProjectile() && source.getSource() instanceof HerbiarySpearItemEntity) {
+        if (source.getSource() instanceof HerbiarySpearItemEntity) {
             this.kill();
             return false;
         }
         return super.damage(source, amount);
-    }
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        event.getController().transitionLengthTicks = 4;
-        if (this.isFlying() || this.isFlyingAway() || this.isInAir()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.owl.fly", true));
-            return PlayState.CONTINUE;
-        } else if (this.isSitting()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.owl.idle", true));
-            return PlayState.CONTINUE;
-        } else if (this.moveControl.isMoving()) {
-            return PlayState.CONTINUE;
-        }
-        return PlayState.STOP;
     }
 
     @Override
@@ -286,78 +263,59 @@ public class OwlEntity extends TameableShoulderEntity implements Angerable, IAni
         return null;
     }
 
+    public boolean isAnotherOwlOnNest() {
+        return this.getWorld().getEntitiesByClass(OwlEntity.class, Box.of(Vec3d.ofCenter(this.nest), 1, 18, 1), entity -> entity.nest != null).size() > 0;
+    }
+
+    public boolean isAnotherOwlNearNestPos(Vec3d pos, int horizDist) {
+        return this.getWorld().getEntitiesByClass(OwlEntity.class, Box.of(pos, horizDist, 18, horizDist), entity -> entity.nest != null).size() > 0;
+    }
+
     @Override
-    public void registerControllers(AnimationData animationData) {
-        animationData.addAnimationController(new AnimationController<>(this, "controller", 0, this::predicate));
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
+        controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::predicate));
     }
 
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
 
-    private class SwoopMovementGoal extends OwlEntity.MovementGoal {
-        SwoopMovementGoal() {
+    RawAnimation anim = RawAnimation.begin();
+    private PlayState predicate(AnimationState<OwlEntity> event) {
+        if (this.isFlying() || this.isFlyingAway() || this.isInAir()) {
+            event.getController().setAnimation(anim.thenLoop("animation.owl.fly"));
+            return PlayState.CONTINUE;
+        } else if (this.isSitting()) {
+            event.getController().setAnimation(anim.thenLoop("animation.owl.idle"));
+            return PlayState.CONTINUE;
+        } else if (this.moveControl.isMoving()) {
+            return PlayState.CONTINUE;
+        }
+        return PlayState.STOP;
+    }
+
+    int blinkStep = 32;
+    @Override
+    public void baseTick() {
+        super.baseTick();
+        if (this.getWorld().isClient()) {
+        }
+    }
+
+    private static class OwlEntityAIGoal extends Goal {
+        PathAwareEntity mob;
+        public OwlEntityAIGoal(PathAwareEntity pathAwareEntity, double d) {
             super();
-        }
-
-        public boolean canStart() {
-            return OwlEntity.this.getTarget() != null && OwlEntity.this.movementType == OwlMovementType.PERCH;
-        }
-
-        public boolean shouldContinue() {
-            LivingEntity livingEntity = OwlEntity.this.getTarget();
-            if (livingEntity == null) {
-                return false;
-            } else return livingEntity.isAlive();
-        }
-
-        public void start() {
-        }
-
-        public void stop() {
-            OwlEntity.this.setTarget((LivingEntity) null);
-            OwlEntity.this.movementType = OwlMovementType.PERCH;
-        }
-
-        public void tick() {
-            LivingEntity livingEntity = OwlEntity.this.getTarget();
-            if (livingEntity != null) {
-                OwlEntity.this.targetPosition = new Vec3d(livingEntity.getX(), livingEntity.getBodyY(0.5) + 5, livingEntity.getZ());
-                if (OwlEntity.this.getBoundingBox().expand(0.20000000298023224).intersects(livingEntity.getBoundingBox())) {
-                    OwlEntity.this.tryAttack(livingEntity);
-                }
-            }
-        }
-    }
-    private static class FlyOntoTreeGoal extends FlyGoal {
-        public FlyOntoTreeGoal(PathAwareEntity pathAwareEntity, double d) {
-            super(pathAwareEntity, d);
-        }
-        @Override
-        public boolean canStart() {
-            return this.mob.world.isDay() || !this.mob.world.getBlockState(this.mob.getBlockPos().down()).isIn(BlockTags.LEAVES);
+            this.mob = pathAwareEntity;
         }
 
         @Nullable
-        protected Vec3d getWanderTarget() {
-            Vec3d vec3d = null;
-            if (this.mob.isTouchingWater()) {
-                vec3d = FuzzyTargeting.find(this.mob, 15, 64);
-            }
-
-            if (this.mob.getRandom().nextFloat() >= 0.4f) {
-                vec3d = this.locateTree();
-            }
-            if (vec3d != null) {
-                this.mob.getWorld().addParticle(ParticleTypes.FLAME, vec3d.x, vec3d.y, vec3d.z, 0, 0, 0);
-            }
-            return vec3d;
-
-        }
-
-        @Nullable
-        private Vec3d locateTree() {
+        private BlockPos locateNestPos() {
             BlockPos blockPos = this.mob.getBlockPos();
             BlockPos.Mutable mutable = new BlockPos.Mutable();
             BlockPos.Mutable mutable2 = new BlockPos.Mutable();
-            Iterable<BlockPos> iterable = BlockPos.iterate(blockPos.add(-16,-16,-16), blockPos.add(16,16,16));
+            Iterable<BlockPos> iterable = BlockPos.iterate(MathHelper.floor(this.mob.getX() - 3.0), MathHelper.floor(this.mob.getY() - 6.0), MathHelper.floor(this.mob.getZ() - 3.0), MathHelper.floor(this.mob.getX() + 3.0), MathHelper.floor(this.mob.getY() + 6.0), MathHelper.floor(this.mob.getZ() + 3.0));
             Iterator<BlockPos> var5 = iterable.iterator();
 
             BlockPos blockPos2;
@@ -368,12 +326,154 @@ public class OwlEntity extends TameableShoulderEntity implements Angerable, IAni
                         return null;
                     }
 
-                    blockPos2 = var5.next();
+                    blockPos2 = (BlockPos)var5.next();
                 } while(blockPos.equals(blockPos2));
-                BlockState blockState = this.mob.world.getBlockState(mutable2.set(blockPos2, Direction.DOWN));
-                bl = blockState.isIn(BlockTags.LEAVES) || blockState.isIn(BlockTags.LOGS);
-            } while(!bl || !this.mob.world.isAir(blockPos2) || !this.mob.world.isAir(mutable.set(blockPos2, Direction.UP)));
-            return Vec3d.of(blockPos2.subtract(blockPos.subtract(blockPos2).multiply(4)));
+
+                BlockState blockState = this.mob.getWorld().getBlockState(mutable2.set(blockPos2, Direction.DOWN));
+                BlockState _s = this.mob.getWorld().getBlockState(blockPos2);
+                if (_s.isOf(ModItems.BIRD_NEST_BLOCK.getLeft())) {
+                    NestBlockEntity _e = ((NestBlockEntity) this.mob.getWorld().getBlockEntity(blockPos2));
+                    boolean blockHasParentBird = _e != null && _e.parent_bird != null;
+                    bl = blockState.isIn(Herbiary.BIRD_NEST_PLACEABLE) || _s.isOf(ModItems.BIRD_NEST_BLOCK.getLeft()) && !blockHasParentBird;
+                }
+                bl=true;
+            } while(!bl || !this.mob.getWorld().isAir(blockPos2) || !this.mob.getWorld().isAir(mutable.set(blockPos2, Direction.UP)));
+
+            return blockPos2;
+        }
+
+        @Nullable
+        private BlockPos locateHarvestables() {
+            BlockPos blockPos = this.mob.getBlockPos();
+            BlockPos.Mutable mutable = new BlockPos.Mutable();
+            BlockPos.Mutable mutable2 = new BlockPos.Mutable();
+            Iterable<BlockPos> iterable = BlockPos.iterate(MathHelper.floor(this.mob.getX() - 3.0), MathHelper.floor(this.mob.getY() - 6.0), MathHelper.floor(this.mob.getZ() - 3.0), MathHelper.floor(this.mob.getX() + 3.0), MathHelper.floor(this.mob.getY() + 6.0), MathHelper.floor(this.mob.getZ() + 3.0));
+            Iterator<BlockPos> var5 = iterable.iterator();
+
+            BlockPos blockPos2;
+            boolean bl;
+            do {
+                do {
+                    if (!var5.hasNext()) {
+                        return null;
+                    }
+
+                    blockPos2 = (BlockPos)var5.next();
+                } while(blockPos.equals(blockPos2));
+
+                BlockState blockState = this.mob.getWorld().getBlockState(mutable2.set(blockPos2, Direction.DOWN));
+                bl = blockState.isIn(Herbiary.NEST_COLLECTABLES);
+            } while(!bl || !this.mob.getWorld().isAir(blockPos2) || !this.mob.getWorld().isAir(mutable.set(blockPos2, Direction.UP)));
+
+            return blockPos2.add(0,1,0);
+        }
+        @Override
+        public boolean canStart() {
+            return true;
+        }
+
+        @Override
+        public boolean canStop() {
+            return false;
+        }
+        int ticks_since_last_nav = 0;
+        boolean isFirstReNavTick = true;
+        boolean isFindingNestSpot = false;
+        BlockPos collectable_position;
+        boolean wants_collectable = true;
+        BlockPos wanted_nest_position;
+        public boolean idle = false;
+        Vec3d goal_pos = Vec3d.ZERO;
+
+        @Override
+        public void tick() {
+            OwlEntity e = ((OwlEntity)this.mob);
+            if (e.nest == null || e.nest.equals(BlockPos.ORIGIN)) {
+                // Need to build and find a nest. Wander around for a couple seconds, or until we find a tree, then make a nest.
+                if (--ticks_since_last_nav <= 0) {
+                    // try to find an empty nest first.
+                    BlockPos np = locateNestPos();
+                    if (np != null) {
+                        e.nest = np;
+                    }
+                    if (e.nest == null || e.nest.equals(BlockPos.ORIGIN) && !isFindingNestSpot) {
+                        collectable_position = this.locateHarvestables();
+                        wants_collectable = true;
+                        ticks_since_last_nav = 6;
+                        goal_pos = Vec3d.ofCenter(e.getBlockPos());
+                    }
+                    if (wants_collectable && collectable_position != null) {
+                        collectable_position = this.locateHarvestables();
+                        assert collectable_position != null;
+                        goal_pos = Vec3d.of(collectable_position).add(
+                                e.random.nextBetweenExclusive(0, 10) * (e.random.nextBoolean() ? -1 : 1),
+                                1,
+                                e.random.nextBetweenExclusive(0, 10) * (e.random.nextBoolean() ? -1 : 1)
+                        );
+                        ticks_since_last_nav = 4;
+                    }
+                    if (e.getWorld().getBlockState(e.getBlockPos().down()).isIn(Herbiary.NEST_COLLECTABLES) && wants_collectable) {
+                        isFindingNestSpot = true;
+                        wants_collectable = false;
+                        ticks_since_last_nav = 30;
+                    }
+                    if (this.isFindingNestSpot && !wants_collectable){
+                        // Random wander if no collectable is found or is searching for a nest
+                        BlockPos v = this.locateNestPos();
+                        if (v == null) {
+                            // No suitable nest position found, search around.
+                            goal_pos = Vec3d.of(collectable_position).add(
+                                    e.random.nextBetweenExclusive(5, 16) * (e.random.nextBoolean() ? -1 : 1),
+                                    1,
+                                    e.random.nextBetweenExclusive(5, 16) * (e.random.nextBoolean() ? -1 : 1)
+                            );
+                        } else {
+                            goal_pos = Vec3d.of(v).add(
+                                    e.random.nextBetweenExclusive(1, 4) * (e.random.nextBoolean() ? -1 : 1),
+                                    1,
+                                    e.random.nextBetweenExclusive(1, 4) * (e.random.nextBoolean() ? -1 : 1)
+                            );
+                        }
+                        ticks_since_last_nav = 15;
+                    }
+                    if (this.isFindingNestSpot && e.getWorld().getBlockState(e.getBlockPos().down()).isIn(Herbiary.BIRD_NEST_PLACEABLE)) {
+                        e.nest = e.getBlockPos();
+                        // set nest block and set owner
+                        e.getWorld().setBlockState(e.getBlockPos(), ModItems.BIRD_NEST_BLOCK.getLeft().getDefaultState());
+                        NestBlockEntity nestBlockEntity = ((NestBlockEntity)e.getWorld().getBlockEntity(e.getBlockPos()));
+                        if (nestBlockEntity == null) {
+                            return;
+                        }
+                        nestBlockEntity.parent_bird = e.getUuid();
+                    }
+                    isFirstReNavTick = false;
+                }
+            }
+            if (e.nest != null){
+                BlockState NEST_STATE = e.getWorld().getBlockState(e.nest);
+                if (e.getWorld().isNight() || e.getWorld().isRaining()) {
+                    Vec3d _d = Vec3d.ofCenter(e.nest);
+                    BlockState d = this.mob.getWorld().getBlockState(this.mob.getBlockPos().down());
+                    if (!this.mob.getBlockPos().isWithinDistance(_d, 2) || d.isAir() || !d.isIn(Herbiary.BIRD_NEST_PLACEABLE)) {
+                        goal_pos = _d.add(0,1,0);
+                    }
+                } else {
+                    goal_pos.add(e.random.nextBetweenExclusive(10, 50) * (e.random.nextBoolean() ? -1 : 1), 0, e.random.nextBetweenExclusive(10, 50) * (e.random.nextBoolean() ? -1 : 1));
+
+                }
+            }
+            TICK:
+            if (idle) {
+                super.tick();
+            } else {
+                this.mob.getNavigation().startMovingTo(goal_pos.x, goal_pos.y, goal_pos.z, .3);
+            }
+        }
+
+        @Override
+        public boolean shouldRunEveryTick() {
+            return true;
         }
     }
+
 }

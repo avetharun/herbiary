@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "age=3": { "model": "al_herbiary:block/raspberry/raspberry_3"},
+    "age=2": { "model": "al_herbiary:block/raspberry/raspberry_2"},
+    "age=1": { "model": "al_herbiary:block/raspberry/raspberry_1"},
+    "age=0": { "model": "al_herbiary:block/raspberry/raspberry_0"}
+  }
+}

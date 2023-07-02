@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "minecraft:stick"
+    },
+    "X": [{"item": "al_herbiary:sharpened_obsidian_rock"}],
+    "!": {"item": "minecraft:feather"}
+  },
+  "pattern": [
+    " X ",
+    " # ",
+    " ! "
+  ],
+  "result": {
+    "item": "al_herbiary:sharpened_obsidian_arrow",
+    "count": 1
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "al_herbiary:block/rot_slab"
+    },
+    "type=double": {
+      "model": "al_herbiary:block/rot_planks"
+    },
+    "type=top": {
+      "model": "al_herbiary:block/rot_slab_top"
+    }
+  }
+}

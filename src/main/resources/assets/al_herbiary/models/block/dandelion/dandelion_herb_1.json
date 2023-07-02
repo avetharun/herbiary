@@ -1,0 +1,8 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "al_herbiary:block/floor_herb_template",
+	"textures": {
+		"1": "al_herbiary:block/dandelion_herb_stage_1",
+		"particle": "al_herbiary:block/dandelion_herb"
+	}
+}

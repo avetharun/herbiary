@@ -1,0 +1,6 @@
+{
+	"parent": "al_herbiary:block/template_crop",
+	"textures": {
+		"crop": "al_herbiary:block/cotton_picked"
+	}
+}

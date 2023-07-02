@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:block/vine",
+	"textures": {
+		"vine": "al_herbiary:block/rot_moss",
+		"particle": "al_herbiary:block/rot_moss"
+	}
+}

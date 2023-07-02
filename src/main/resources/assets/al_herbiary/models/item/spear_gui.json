@@ -1,0 +1,9 @@
+{
+	"ambientocclusion": false,
+	"credit": "Made with Blockbench",
+	"parent": "item/generated",
+	"gui_light": "front",
+	"textures": {
+		"layer0": "al_herbiary:item/spear"
+	}
+}

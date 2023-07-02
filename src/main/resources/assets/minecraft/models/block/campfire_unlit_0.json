@@ -1,0 +1,27 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"particle": "block/campfire_log",
+		"log": "block/campfire_log"
+	},
+	"elements": [
+		{
+			"from": [2, 0, 2],
+			"to": [14, 1, 14],
+			"faces": {
+				"north": {"uv": [2, 8, 10, 9], "texture": "#log"},
+				"east": {"uv": [2, 8, 10, 9], "texture": "#log"},
+				"south": {"uv": [2, 8, 10, 9], "texture": "#log"},
+				"west": {"uv": [2, 8, 10, 9], "texture": "#log"},
+				"up": {"uv": [0, 8, 8, 16], "texture": "#log"},
+				"down": {"uv": [8, 8, 16, 16], "texture": "#log"}
+			}
+		}
+	],
+	"display": {
+		"head": {
+			"translation": [0, 10.5, 0]
+		}
+	}
+}

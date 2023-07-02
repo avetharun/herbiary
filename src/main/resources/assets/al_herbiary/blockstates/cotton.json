@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "age=3": { "model": "al_herbiary:block/cotton"},
+    "age=2": { "model": "al_herbiary:block/cotton_picked"},
+    "age=1": { "model": "al_herbiary:block/cotton_picked"},
+    "age=0": { "model": "al_herbiary:block/cotton_picked"}
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "al_herbiary:block/campfire_pot", "uvlock": false },
+    "facing=east":  { "model": "al_herbiary:block/campfire_pot", "y":  90, "uvlock": false },
+    "facing=south": { "model": "al_herbiary:block/campfire_pot", "y": 180, "uvlock": false },
+    "facing=west":  { "model": "al_herbiary:block/campfire_pot", "y": 270, "uvlock": false }
+  }
+}

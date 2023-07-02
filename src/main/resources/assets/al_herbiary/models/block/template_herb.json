@@ -1,0 +1,61 @@
+{
+	"credit": "Made with Blockbench",
+	"ambientocclusion": false,
+	"textures": {
+		"particle": "#herb"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 0, 8],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 0, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"east": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"south": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"west": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"up": {"uv": [0, 0, 16, 8], "texture": "#herb"},
+				"down": {"uv": [0, 8, 16, 0], "texture": "#herb"}
+			}
+		},
+		{
+			"from": [0, 0, 8],
+			"to": [16, 0, 16],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 0, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"east": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"south": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"west": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"up": {"uv": [16, 16, 0, 8], "rotation": 180, "texture": "#herb"},
+				"down": {"uv": [16, 8, 0, 16], "rotation": 180, "texture": "#herb"}
+			}
+		},
+		{
+			"from": [8, 0, 0],
+			"to": [16, 0, 16],
+			"rotation": {"angle": 22.5, "axis": "z", "origin": [8, 0, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"east": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"south": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"west": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"up": {"uv": [8, 0, 16, 16], "texture": "#herb"},
+				"down": {"uv": [8, 16, 16, 0], "texture": "#herb"}
+			}
+		},
+		{
+			"from": [0, 0, 0],
+			"to": [8, 0, 16],
+			"rotation": {"angle": -22.5, "axis": "z", "origin": [8, 0, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"east": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"south": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"west": {"uv": [0, 0, 0, 0], "texture": "#herb"},
+				"up": {"uv": [0, 0, 8, 16], "texture": "#herb"},
+				"down": {"uv": [0, 16, 8, 0], "texture": "#herb"}
+			}
+		}
+	]
+}

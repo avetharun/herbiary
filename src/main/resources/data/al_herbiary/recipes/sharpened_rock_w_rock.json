@@ -1,0 +1,10 @@
+{
+  "type": "al_herbiary:workstation",
+  "count": 1,
+  "tool": {"item": "al_herbiary:rock"},
+  "ingredient": {
+    "item": "al_herbiary:rock"
+  },
+  "craft_sound" : "al_herbiary:rock_strike",
+  "result": "al_herbiary:sharpened_rock"
+}

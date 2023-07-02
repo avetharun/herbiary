@@ -5,7 +5,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.NoPenaltyTargeting;
 import net.minecraft.entity.ai.goal.FlyGoal;
 import net.minecraft.entity.mob.PathAwareEntity;
-import net.minecraft.tag.FluidTags;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
@@ -36,7 +36,7 @@ public class FlyAwayFromDangerGoal extends FlyGoal {
             return false;
         } else {
             if (this.mob.isOnFire()) {
-                BlockPos blockPos = this.locateClosestWater(this.mob.world, this.mob);
+                BlockPos blockPos = this.locateClosestWater(this.mob.getWorld(), this.mob);
                 if (blockPos != null) {
                     this.targetX = (double)blockPos.getX();
                     this.targetY = (double)blockPos.getY();

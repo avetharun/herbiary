@@ -1,0 +1,8 @@
+{
+	"parent": "al_herbiary:block/template_bush",
+	"textures": {
+		"inner": "al_herbiary:block/elderberry_inner_3",
+		"outer": "al_herbiary:block/elderberry_outer_3",
+		"particle": "al_herbiary:block/elderberry_inner_3"
+	}
+}

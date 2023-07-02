@@ -1,0 +1,150 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.duck.splash": {
+			"animation_length": 0.45833,
+			"bones": {
+				"wing_l": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.125": {
+							"vector": [-75, 0, 0],
+							"easing": "easeInOutElastic"
+						},
+						"0.25": {
+							"vector": [-25, 0, 0]
+						},
+						"0.3333": {
+							"vector": [-60, 0, 0]
+						},
+						"0.4583": {
+							"vector": [0, 0, 0]
+						}
+					}
+				},
+				"wing_r": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.125": {
+							"vector": [75, 0, 0],
+							"easing": "easeInOutElastic"
+						},
+						"0.25": {
+							"vector": [25, 0, 0]
+						},
+						"0.3333": {
+							"vector": [60, 0, 0]
+						},
+						"0.4583": {
+							"vector": [0, 0, 0]
+						}
+					}
+				},
+				"tail": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.1667": {
+							"vector": [6.59052, -7.51639, 42.20499],
+							"easing": "easeInOutBounce",
+							"easingArgs": [0.1]
+						},
+						"0.3333": {
+							"vector": [4.58341, 23.9943, 50.50062],
+							"easing": "linear"
+						},
+						"0.4583": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					}
+				}
+			}
+		},
+		"animation.duck.clean": {
+			"animation_length": 0.5,
+			"bones": {
+				"head": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.1667": {
+							"vector": [2.34127, -21.95852, -49.95794],
+							"easing": "easeInElastic"
+						},
+						"0.25": {
+							"vector": [-0.69521, -22.06645, -41.86811]
+						},
+						"0.3333": {
+							"vector": [3.24411, -16.84275, -52.3446]
+						},
+						"0.4167": {
+							"vector": [10.18144, -17.1425, -41.89154]
+						},
+						"0.5": {
+							"vector": [0, 0, 0]
+						}
+					}
+				}
+			}
+		},
+		"animation.duck.fly": {
+			"loop": true,
+			"animation_length": 0.5,
+			"bones": {
+				"wing_l": {
+					"rotation": {
+						"0.0": {
+							"vector": [-50, 0, 0]
+						},
+						"0.25": {
+							"vector": [-120, 0, 0],
+							"easing": "easeInOutSine"
+						},
+						"0.5": {
+							"vector": [-50, 0, 0],
+							"easing": "easeInOutQuart"
+						}
+					}
+				},
+				"wing_r": {
+					"rotation": {
+						"0.0": {
+							"vector": [50, 0, 0]
+						},
+						"0.25": {
+							"vector": [120, 0, 0],
+							"easing": "easeInOutSine"
+						},
+						"0.5": {
+							"vector": [50, 0, 0],
+							"easing": "easeInOutQuint"
+						}
+					}
+				}
+			}
+		},
+		"animation.duck.in_water": {
+			"loop": true,
+			"bones": {
+				"root": {
+					"position": {
+						"vector": [0, -1, 0]
+					}
+				},
+				"belly": {
+					"position": {
+						"vector": [0, 1.25, 0]
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}

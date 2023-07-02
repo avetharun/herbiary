@@ -1,10 +1,9 @@
 package com.avetharun.herbiary.Items.ItemEntities;
 
 import com.avetharun.herbiary.HerbiarySoundEvents;
-import com.avetharun.herbiary.hUtil.ModItems;
+import com.avetharun.herbiary.ModItems;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.*;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
@@ -23,7 +22,7 @@ public class HerbiarySpearItemEntity extends PersistentProjectileEntity {
 
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
-        entityHitResult.getEntity().damage(DamageSource.trident(this, owner), 4);
+        entityHitResult.getEntity().damage(this.getDamageSources().trident(this, owner), 4);
         entityHitResult.getEntity().getWorld().playSound(getX(), getY(), getZ(), SoundEvents.ITEM_CROSSBOW_LOADING_MIDDLE, SoundCategory.MASTER, 1, 0.1f, false);
     }
 

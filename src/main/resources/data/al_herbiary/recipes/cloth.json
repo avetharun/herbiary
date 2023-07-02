@@ -1,0 +1,9 @@
+{
+  "type": "al_herbiary:workstation",
+  "tool": {"item": "al_herbiary:bone_sewing_needle"},
+  "ingredient": {
+    "item": "minecraft:string"
+  },
+  "result": "al_herbiary:cloth",
+  "count": 1
+}

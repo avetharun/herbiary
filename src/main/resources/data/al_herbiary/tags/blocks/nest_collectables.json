@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:leaves",
+    "#minecraft:overworld_natural_logs",
+    "minecraft:mangrove_roots",
+    "minecraft:hay_block",
+    "al_herbiary:rot_log"
+  ]
+}

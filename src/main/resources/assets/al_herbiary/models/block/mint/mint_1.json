@@ -1,0 +1,7 @@
+{
+	"parent": "al_herbiary:block/template_crop_bottom",
+	"textures": {
+		"crop": "al_herbiary:block/mint_stage_1",
+		"bottom": "al_herbiary:block/mint_bottom"
+	}
+}

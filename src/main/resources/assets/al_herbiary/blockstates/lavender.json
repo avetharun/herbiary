@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "age=3": { "model": "al_herbiary:block/lavender/lavender"},
+    "age=0": { "model": "al_herbiary:block/lavender/lavender_0"},
+    "age=1": { "model": "al_herbiary:block/lavender/lavender_1"},
+    "age=2": { "model": "al_herbiary:block/lavender/lavender_2"}
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "al_herbiary:item/longbow",
+  "textures": {
+    "layer0": "al_herbiary:item/longbow_pulling_1"
+  }
+}

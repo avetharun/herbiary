@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:leaves",
+    "#minecraft:overworld_natural_logs",
+    "#minecraft:azalea_grows_on",
+    "#minecraft:fences",
+    "#minecraft:walls",
+    "#minecraft:anvil",
+    "minecraft:bell",
+    "minecraft:scaffolding",
+    "minecraft:barrel",
+    "minecraft:azalea",
+    "minecraft:flowering_azalea",
+    "minecraft:mangrove_roots",
+    "minecraft:hay_block",
+    "al_herbiary:rot_log",
+    "al_herbiary:oak_branch",
+    "al_herbiary:spruce_branch"
+  ]
+}

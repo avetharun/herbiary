@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "lit=true,hanging=false": {
+      "model": "al_herbiary:block/oil_lamp_on"
+    },
+    "lit=false,hanging=false": {
+      "model": "al_herbiary:block/oil_lamp_off"
+    },
+    "lit=true,hanging=true": {
+      "model": "al_herbiary:block/oil_lamp_on_hanging"
+    },
+    "lit=false,hanging=true": {
+      "model": "al_herbiary:block/oil_lamp_off_hanging"
+    }
+  }
+}

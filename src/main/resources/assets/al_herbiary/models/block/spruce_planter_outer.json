@@ -1,0 +1,9 @@
+{
+  "parent": "al_herbiary:block/planter_outer",
+  "textures": {
+    "bottom": "minecraft:block/spruce_planks",
+    "side": "minecraft:block/spruce_planks",
+    "top": "minecraft:block/spruce_planks",
+    "soil": "minecraft:block/dirt"
+  }
+}

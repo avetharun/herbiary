@@ -18,6 +18,23 @@
       }
     ]
   },
+  "unzip_tent": {
+    "subtitle": "subtitles.al_herbiary.unzip_tent",
+    "sounds": [
+      {
+        "name": "al_herbiary:item/unzip",
+        "pitch": 0.9
+      },
+      {
+        "name": "al_herbiary:item/unzip",
+        "pitch": 0.7
+      },
+      {
+        "name": "al_herbiary:item/unzip",
+        "pitch": 0.6
+      }
+    ]
+  },
   "spear_land": {
     "subtitle": "subtitles.al_herbiary.spear_lands",
     "sounds": [
@@ -30,6 +47,51 @@
         "name": "minecraft:item/crossbow/loading_middle2",
         "pitch": 0.7,
         "volume": 0.65
+      }
+    ]
+  },
+  "flint_fail": {
+    "subtitle": "subtitles.al_herbiary.lighter_fail",
+    "sounds": [
+      {
+        "name": "al_herbiary:item/flint_fail",
+        "pitch": 1,
+        "volume": 1
+      },
+      {
+        "name": "al_herbiary:item/flint_fail",
+        "pitch": 0.8,
+        "volume": 1
+      }
+    ]
+  },
+  "flint_succeed": {
+    "subtitle": "subtitles.al_herbiary.lighter_succeed",
+    "sounds": [
+      {
+        "name": "al_herbiary:item/flint_succeed",
+        "pitch": 1,
+        "volume": 1
+      },
+      {
+        "name": "al_herbiary:item/flint_succeed",
+        "pitch": 0.8,
+        "volume": 1
+      }
+    ]
+  },
+  "rock_strike": {
+    "subtitle": "subtitles.al_herbiary.rock_strike",
+    "sounds": [
+      {
+        "name": "al_herbiary:item/rock_strike",
+        "pitch": 1,
+        "volume": 0.5
+      },
+      {
+        "name": "al_herbiary:item/rock_strike",
+        "pitch": 0.8,
+        "volume": 0.4
       }
     ]
   }

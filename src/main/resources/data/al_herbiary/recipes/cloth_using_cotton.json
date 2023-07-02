@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "al_herbiary:cotton"
+    },
+    {
+      "item": "al_herbiary:cotton"
+    }
+  ],
+  "result": {
+    "item": "al_herbiary:cloth"
+  }
+}

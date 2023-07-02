@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "al_herbiary:lavender",
+    "al_herbiary:cotton",
+    "al_herbiary:dandelion_herb",
+    "al_herbiary:oyster_mushroom",
+    "al_herbiary:pine_sap",
+    "al_herbiary:honey_mushroom"
+  ]
+}

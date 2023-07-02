@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "al_herbiary:block/pine_sap", "uvlock": false },
+    "facing=east":  { "model": "al_herbiary:block/pine_sap", "y":  90, "uvlock": false },
+    "facing=south": { "model": "al_herbiary:block/pine_sap", "y": 180, "uvlock": false },
+    "facing=west":  { "model": "al_herbiary:block/pine_sap", "y": 270, "uvlock": false }
+  }
+}

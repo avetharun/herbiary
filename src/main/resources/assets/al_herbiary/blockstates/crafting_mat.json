@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "al_herbiary:block/crafting_mat"
+    }
+  }
+}
