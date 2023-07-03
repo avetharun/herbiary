@@ -1,6 +1,7 @@
 package com.avetharun.herbiary;
 
 import com.avetharun.herbiary.Items.FlintIgniter;
+import com.avetharun.herbiary.Items.UnlockableNamedItem;
 import com.avetharun.herbiary.command.LearnCommand;
 import com.avetharun.herbiary.entity.spawner.OwlSpawner;
 import com.avetharun.herbiary.hUtil.HerbDescriptor;
@@ -17,7 +18,10 @@ import com.avetharun.herbiary.recipes.RecipesUtil;
 import com.avetharun.herbiary.screens.BackpackScreenHandler;
 import com.avetharun.herbiary.screens.CampfirePotScreenHandler;
 import com.avetharun.herbiary.screens.WorkstationScreenHandler;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.brigadier.CommandDispatcher;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
@@ -30,10 +34,13 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
@@ -48,6 +55,7 @@ import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.PlayerManager;
+import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -60,6 +68,12 @@ import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.WorldPreset;
 import net.minecraft.world.gen.WorldPresets;
+import vazkii.patchouli.api.PatchouliAPI;
+import vazkii.patchouli.client.jei.PatchouliJeiPlugin;
+import vazkii.patchouli.common.book.Book;
+import vazkii.patchouli.common.book.BookRegistry;
+import vazkii.patchouli.fabric.xplat.FabricXplatModContainer;
+import vazkii.patchouli.xplat.XplatModContainer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,6 +116,17 @@ public class Herbiary implements ModInitializer {
         return CURRENT_SEASON = Season.values()[seasonTime % 4];
     }
     public static Season CURRENT_SEASON = Season.SPRING;
+    public static Identifier HERBIARY_FIELD_GUIDE_BOOK_ID = new Identifier("al_herbiary", "field_guide");
+    private static final String HERBIARY_FIELD_GUIDE_BOOK_JSON = """
+            {
+              "name": "Field Guide",
+              "landing_text": "A guide you wrote which has various plants and animals you have found",
+              "version": 0,
+              "use_resource_pack": true,
+              "model":""
+            }
+            """;
+    public static Book HERBIARY_FIELD_GUIDE_PATCHOULI_BOOK;
 
     public static Identifier BACKPACK_UPDATE_PACKET_ID = new Identifier("al_herbiary", "backpack_update");
 
@@ -109,6 +134,7 @@ public class Herbiary implements ModInitializer {
     public static Identifier SET_ARROW_TYPE_PACKET_ID = new Identifier("al_herbiary", "c2s_set_bow_type");
     public static Identifier SYNC_BREAKABLES_PACKET_ID = new Identifier("al_herbiary", "sync");
     public static Identifier UNLOCK_ITEM_PACKET_ID = new Identifier("al_herbiary", "s2c_unlock_item");
+    public static Identifier C2S_TRY_LEARN_ITEM_PACKET_ID = new Identifier("al_herbiary", "c2s_try_unlock_item");
     public static TagKey<Block> LAMPS = TagKey.of(RegistryKeys.BLOCK, new Identifier("al_herbiary", "lamps"));
     public static TagKey<Block> MUSHROOM_PLACEABLE = TagKey.of(RegistryKeys.BLOCK, new Identifier("al_herbiary", "mushroom_placeable"));
     public static TagKey<Block> CAMPFIRE_SIGNAL_BLOCKS = TagKey.of(RegistryKeys.BLOCK, new Identifier("al_herbiary", "campfire_signal_blocks"));
@@ -156,8 +182,19 @@ public class Herbiary implements ModInitializer {
     public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access) {}
     @Override
     public void onInitialize() {
+        // Temporarially commented out for git push for williewilus
+//        HERBIARY_FIELD_GUIDE_PATCHOULI_BOOK = new Book((JsonObject) JsonParser.parseString(HERBIARY_FIELD_GUIDE_BOOK_JSON), new FabricXplatModContainer(FabricLoader.getInstance().getModContainer("herbiary").get()), HERBIARY_FIELD_GUIDE_BOOK_ID, true);
+//        BookRegistry.INSTANCE.books.put(new Identifier("al_herbiary", "field_guide"), HERBIARY_FIELD_GUIDE_PATCHOULI_BOOK);
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             LearnCommand.register(dispatcher,registryAccess);
+            dispatcher.register(CommandManager.literal("patchouli_get_books").executes(context -> {
+                BookRegistry.INSTANCE.books.forEach((identifier, book) -> {
+                    System.out.println("?????");
+                    context.getSource().sendMessage(Text.of("id: " + identifier.toString() + " with ns " + book.getModNamespace()));
+                });
+
+                return 1;
+            }));
         });
         ModItems.registerModItemData();
         ModEntityTypes.InitializeModEntityTypes();
@@ -228,6 +265,12 @@ public class Herbiary implements ModInitializer {
             // forward to client for client-sided rendering and gui
             var pack_resp = new OverlayMessageS2CPacket(Text.of("Set arrow type to " + p.wantedArrowType.getName()));
             player.networkHandler.sendPacket(pack_resp);
+        });
+        ServerPlayNetworking.registerGlobalReceiver(C2S_TRY_LEARN_ITEM_PACKET_ID, (server, player, handler, buf, responseSender)->{
+            ItemStack stack = buf.readItemStack();
+            if (alib.playerHasItem(player, stack)) {
+                UnlockableNamedItem.Unlock(player, false, stack);
+            };
         });
         Registry.register(Registries.PARTICLE_TYPE, new Identifier("al_herbiary", "flint_spark"), FLINT_SPARK);
         Registry.register(Registries.PARTICLE_TYPE, new Identifier("al_herbiary", "flint_smoke"), FLINT_SPARK_SMOKE);

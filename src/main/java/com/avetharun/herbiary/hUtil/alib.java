@@ -7,9 +7,11 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -32,6 +34,15 @@ import java.util.zip.Adler32;
 import java.util.zip.CRC32;
 
 public class alib {
+    public static boolean playerHasItem(ServerPlayerEntity player, ItemStack targetItem) {
+        for (ItemStack itemStack : player.getInventory().main) {
+            // Check if the item matches the target item type (ignoring NBT)
+            if (itemStack.getItem() == targetItem.getItem() && itemStack.getItem() != Items.AIR) {
+                return true;
+            }
+        }
+        return false;
+    }
     public static <F,T> F getMixinField(T mixinType, String fieldName) {
         try {
             Field f = mixinType.getClass().getField(fieldName);

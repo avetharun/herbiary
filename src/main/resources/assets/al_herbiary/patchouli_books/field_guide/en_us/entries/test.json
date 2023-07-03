@@ -1,0 +1,12 @@
+{
+  "name": "Test",
+  "icon": "al_herbiary:rock",
+  "category": "al_herbiary:tools",
+  "priority": "true",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "test"
+    }
+  ]
+}

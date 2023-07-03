@@ -1,5 +1,6 @@
 package com.avetharun.herbiary.command;
 import com.avetharun.herbiary.Items.UnlockableNamedItem;
+import com.avetharun.herbiary.hUtil.alib;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
@@ -20,33 +21,46 @@ import java.util.concurrent.CompletableFuture;
 
 public class LearnCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access) {
-
-        dispatcher.register(CommandManager.literal("forget")
+        dispatcher.register(CommandManager.literal("forget").requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .then(CommandManager.argument("player", EntityArgumentType.player())
                         .then(CommandManager.argument("item", ItemStackArgumentType.itemStack(access))
                                 .suggests((context, builder) -> suggestItems(context.getSource(), builder))
                                 .executes(context -> executeForget(context.getSource(), EntityArgumentType.getPlayer(context, "player"), ItemStackArgumentType.getItemStackArgument(context, "item"))))));
-        dispatcher.register(CommandManager.literal("learn")
+        dispatcher.register(CommandManager.literal("learn").requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .then(CommandManager.argument("player", EntityArgumentType.player())
                         .then(CommandManager.argument("item", ItemStackArgumentType.itemStack(access))
                                 .suggests((context, builder) -> suggestItems(context.getSource(), builder))
-                                .executes(context -> executeLearn(context.getSource(), EntityArgumentType.getPlayer(context, "player"), ItemStackArgumentType.getItemStackArgument(context, "item"))))));
+                                .executes(context -> executeLearn(context.getSource(), EntityArgumentType.getPlayer(context, "player"), ItemStackArgumentType.getItemStackArgument(context, "item"), true)))));
     }
 
     private static CompletableFuture<Suggestions> suggestItems(ServerCommandSource source, SuggestionsBuilder builder) {
         return CommandSource.suggestIdentifiers(Registries.ITEM.stream().map(Registries.ITEM::getId), builder);
     }
 
-    private static int executeLearn(ServerCommandSource source, PlayerEntity player, ItemStackArgument Astack) {
+    private static int executeLearn(ServerCommandSource source, PlayerEntity player, ItemStackArgument Astack, boolean forceLearn) {
         ItemStack stack = Astack.getItem().getDefaultStack();
-        if (!(stack == null) && !stack.isEmpty()) {
-            UnlockableNamedItem.Unlock((ServerPlayerEntity) player, false, stack);
-            source.sendFeedback(() -> player.getDisplayName().copy().append(" has learned " + stack.getTranslationKey()), true);
-            return 1;
+        if (forceLearn) {
+            if (!(stack == null) && !stack.isEmpty()) {
+                UnlockableNamedItem.Unlock((ServerPlayerEntity) player, false, stack);
+                source.sendFeedback(() -> player.getDisplayName().copy().append(" has learned " + stack.getTranslationKey()), true);
+                return 1;
+            } else {
+                source.sendError(Text.of("Invalid item."));
+                return 0;
+            }
         } else {
-            source.sendError(Text.of("Invalid item."));
-            return 0;
+            if (!(stack == null) && !stack.isEmpty()) {
+                if (alib.playerHasItem((ServerPlayerEntity) player, stack)) {
+                    UnlockableNamedItem.Unlock((ServerPlayerEntity) player, false, stack);
+                    return 1;
+                }
+            } else {
+                source.sendError(Text.of("Invalid item."));
+                return 0;
+            }
+
         }
+        return 0;
     }
 
     private static int executeForget(ServerCommandSource source, PlayerEntity player, ItemStackArgument Astack) {
