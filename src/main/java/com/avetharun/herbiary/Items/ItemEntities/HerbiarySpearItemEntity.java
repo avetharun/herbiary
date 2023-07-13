@@ -1,10 +1,12 @@
 package com.avetharun.herbiary.Items.ItemEntities;
 
+import com.avetharun.herbiary.Herbiary;
 import com.avetharun.herbiary.HerbiarySoundEvents;
 import com.avetharun.herbiary.ModItems;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.*;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.entity.projectile.TridentEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -36,8 +38,9 @@ public class HerbiarySpearItemEntity extends PersistentProjectileEntity {
         if (this.tridentStack == null) {return ModItems.SPEAR_ITEM.getDefaultStack();}
         return this.tridentStack.copy();
     }
+    @Override
     protected SoundEvent getHitSound() {
-        return HerbiarySoundEvents.SPEAR_LAND;
+        return Herbiary.SPEAR_LAND;
     }
 
 
@@ -46,7 +49,7 @@ public class HerbiarySpearItemEntity extends PersistentProjectileEntity {
 
         this.tridentStack = stack;
         owner = _owner;
-        world.playSound(null, _owner.getBlockPos(), HerbiarySoundEvents.SPEAR_THROWN, SoundCategory.PLAYERS, 1, 1);
+        world.playSound(null, _owner.getBlockPos(), Herbiary.SPEAR_THROWN, SoundCategory.PLAYERS, 1, 1);
     }
     @Override
     // Never age

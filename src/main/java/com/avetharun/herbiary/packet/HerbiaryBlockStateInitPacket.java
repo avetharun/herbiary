@@ -15,8 +15,7 @@ import java.util.List;
 
 public class HerbiaryBlockStateInitPacket implements Packet<ClientPlayPacketListener> {
     public NbtCompound blocks_out = new NbtCompound();
-    public boolean allow_vanilla_breaking;
-    public boolean allow_herb_placement;
+    public boolean allow_vanilla_breaking,allow_herb_placement, allow_mining_ores_and_stone = false;
     public final List<NbtCompound> blocks_nbt = new ArrayList<>();
     public NbtCompound createCompoundForBlock(Identifier b) {
         NbtCompound c =  new NbtCompound();
@@ -41,6 +40,7 @@ public class HerbiaryBlockStateInitPacket implements Packet<ClientPlayPacketList
             blocks_out = buf.readNbt();
             this.allow_herb_placement = buf.readBoolean();
             this.allow_vanilla_breaking = buf.readBoolean();
+            this.allow_mining_ores_and_stone = buf.readBoolean();
         } else {
             System.out.println("Unable to read packet.");
         }
@@ -54,6 +54,7 @@ public class HerbiaryBlockStateInitPacket implements Packet<ClientPlayPacketList
         buf.writeNbt(blocks_out);
         buf.writeBoolean(this.allow_herb_placement);
         buf.writeBoolean(this.allow_vanilla_breaking);
+        buf.writeBoolean(this.allow_mining_ores_and_stone);
     }
 
     public void apply(ClientPlayPacketListener clientPlayPacketListener) {

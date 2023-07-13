@@ -1,19 +1,19 @@
 {
   "variants": {
 
-    "facing=south,lit=true,age=0,occupied=true": {
+    "facing=south,age=0": {
       "model": "minecraft:block/campfire_unlit_0",
       "y": 180
     },
-    "facing=west,lit=true,age=0,occupied=true": {
+    "facing=west,age=0": {
       "model": "minecraft:block/campfire_unlit_0",
       "y": 270
     },
-    "facing=north,lit=true,age=0,occupied=true": {
+    "facing=north,age=0": {
       "model": "minecraft:block/campfire_unlit_0",
       "y": 0
     },
-    "facing=east,lit=true,age=0,occupied=true": {
+    "facing=east,age=0": {
       "model": "minecraft:block/campfire_unlit_0",
       "y": 90
     },
@@ -82,40 +82,6 @@
       "y": 270
     },
 
-
-
-    "facing=north,lit=true,age=0,occupied=false": {
-      "model": "minecraft:block/campfire_unlit_0",
-      "y": 0
-    },
-    "facing=east,lit=true,age=0,occupied=false": {
-      "model": "minecraft:block/campfire_unlit_0",
-      "y": 90
-    },
-    "facing=south,lit=true,age=0,occupied=false": {
-      "model": "minecraft:block/campfire_unlit_0",
-      "y": 180
-    },
-    "facing=west,lit=false,age=0,occupied=false": {
-      "model": "minecraft:block/campfire_unlit_0",
-      "y": 270
-    },
-    "facing=north,lit=false,age=0,occupied=false": {
-      "model": "minecraft:block/campfire_unlit_0",
-      "y": 0
-    },
-    "facing=east,lit=false,age=0,occupied=false": {
-      "model": "minecraft:block/campfire_unlit_0",
-      "y": 90
-    },
-    "facing=south,lit=false,age=0,occupied=false": {
-      "model": "minecraft:block/campfire_unlit_0",
-      "y": 180
-    },
-    "facing=west,lit=true,age=0,occupied=false": {
-      "model": "minecraft:block/campfire_unlit_0",
-      "y": 270
-    },
     "facing=north,lit=true,age=1,occupied=false": {
       "model": "minecraft:block/campfire_lit_1",
       "y": 0

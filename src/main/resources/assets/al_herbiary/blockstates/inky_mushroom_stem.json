@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "al_herbiary:block/inky_mushroom_stem_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "al_herbiary:block/inky_mushroom_stem"
+    },
+    "axis=z": {
+      "model": "al_herbiary:block/inky_mushroom_stem_horizontal",
+      "x": 90
+    }
+  }
+}

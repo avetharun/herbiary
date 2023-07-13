@@ -1,5 +1,6 @@
 package com.avetharun.herbiary.hUtil;
 
+import com.google.common.collect.ImmutableSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -9,15 +10,21 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import net.minecraft.world.poi.PointOfInterestType;
+import net.minecraft.world.poi.PointOfInterestTypes;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,15 +32,31 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.zip.Adler32;
 import java.util.zip.CRC32;
 
 public class alib {
+
+    public static PointOfInterestType registerPOIType(RegistryKey<PointOfInterestType> key, Set<BlockState> states, int ticketCount, int searchDistance) {
+        PointOfInterestType pointOfInterestType = new PointOfInterestType(states, ticketCount, searchDistance);
+        Registry.register(Registries.POINT_OF_INTEREST_TYPE, key, pointOfInterestType);
+        registerStates(Registries.POINT_OF_INTEREST_TYPE.entryOf(key), states);
+        return pointOfInterestType;
+    }
+    private static void registerStates(RegistryEntry<PointOfInterestType> poiTypeEntry, Set<BlockState> states) {
+        states.forEach((state) -> {
+            RegistryEntry<PointOfInterestType> registryEntry2 = PointOfInterestTypes.POI_STATES_TO_TYPE.put(state, poiTypeEntry);
+            if (registryEntry2 != null) {
+                throw (IllegalStateException) Util.throwOrPause(new IllegalStateException(String.format(Locale.ROOT, "%s is defined in more than one PoI type", state)));
+            }
+        });
+    }
+    public static Set<BlockState> getStatesOfBlock(Block block) {
+        return ImmutableSet.copyOf(block.getStateManager().getStates());
+    }
     public static boolean playerHasItem(ServerPlayerEntity player, ItemStack targetItem) {
         for (ItemStack itemStack : player.getInventory().main) {
             // Check if the item matches the target item type (ignoring NBT)

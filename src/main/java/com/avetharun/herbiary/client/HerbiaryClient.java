@@ -69,6 +69,7 @@ public class HerbiaryClient implements ClientModInitializer {
     BakedModel SPEAR_BAKED_GUI_MODEL;
     public static boolean CanBreakVanillaBlocks = true;
     public static boolean IsAllowedToPlaceHerbBlocks = false;
+    public static boolean CanMineStoneLikeBlocks = false;
     public static final EntityModelLayer MODEL_SPEAR_LAYER = new EntityModelLayer(new Identifier("al_herbiary", "spear_entity"), "spear");
 
     private void onRenderHud(DrawContext matrixStack, float v) {
@@ -100,10 +101,8 @@ public class HerbiaryClient implements ClientModInitializer {
                 return;
             }
             KnownPlants.addAll(packet.unlockedTranslationKeys);
-            System.out.println("Recieved known plants");
         });
-        ClientPlayNetworking.registerGlobalReceiver(Herbiary.SYNC_BREAKABLES_PACKET_ID, (client, handler, buf, responseSender) -> {
-            System.out.println("Recieved gamerules");
+        ClientPlayNetworking.registerGlobalReceiver(Herbiary.HERBIARY_SYNC_PACKET_ID, (client, handler, buf, responseSender) -> {
             HerbiaryBlockStateInitPacket b = new HerbiaryBlockStateInitPacket(buf);
             Herbiary.AllowedHerbiaryBreakables.clear();
             b.getBlocksArray().forEach(identifier -> {
@@ -111,6 +110,7 @@ public class HerbiaryClient implements ClientModInitializer {
             });
             IsAllowedToPlaceHerbBlocks = b.allow_herb_placement;
             CanBreakVanillaBlocks = b.allow_vanilla_breaking;
+            CanMineStoneLikeBlocks = b.allow_mining_ores_and_stone;
         });
 
         ClientPlayNetworking.registerGlobalReceiver(BACKPACK_UPDATE_PACKET_ID, (client, handler, buf, responseSender) -> {

@@ -1,5 +1,6 @@
 package com.avetharun.herbiary;
 
+import com.avetharun.herbiary.Enchants.fantasy.GracefulEnchant;
 import com.avetharun.herbiary.Items.*;
 import com.avetharun.herbiary.Items.ItemEntities.HerbiarySpearItemEntity;
 import com.avetharun.herbiary.block.*;
@@ -18,6 +19,8 @@ import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityT
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.entity.*;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -26,9 +29,13 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,9 +61,25 @@ public class ModItems {
     public static final Item LONGBOW = registerItem("longbow", new BowItem(new Item.Settings().maxDamage(480)));
     // begin tools
 
-    public static final ModBlockItem IRON_SKILLET = registerExistingCreativeOnlyBlockWithItem(new CampfirePlaceableBlock(FabricBlockSettings.create(), Properties.HORIZONTAL_FACING), "iron_skillet", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
-    public static final ModBlockItem CERAMIC_SKILLET = registerExistingCreativeOnlyBlockWithItem(new CampfirePlaceableBlock(FabricBlockSettings.create(), Properties.HORIZONTAL_FACING), "ceramic_skillet", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
-    public static final ModBlockItem CAMPFIRE_POT = registerExistingCreativeOnlyBlockWithItem(new CampfirePlaceableBlock(FabricBlockSettings.create(), Properties.HORIZONTAL_FACING), "campfire_pot", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
+    public static final ModBlockItem IRON_SKILLET = registerBlockAsCreativeOnlyWithItem(new HorizontalFacingBlock(FabricBlockSettings.create()) {
+        public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+            builder.add(Properties.HORIZONTAL_FACING, Properties.LIT);
+        }
+    }, "iron_skillet", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
+
+    public static final ModBlockItem CERAMIC_SKILLET = registerBlockAsCreativeOnlyWithItem(new HorizontalFacingBlock(FabricBlockSettings.create()) {
+        public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+            builder.add(Properties.HORIZONTAL_FACING, Properties.LIT);
+        }
+    }, "ceramic_skillet", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
+
+
+    public static final ModBlockItem CAMPFIRE_POT = registerBlockAsCreativeOnlyWithItem(new HorizontalFacingBlock(FabricBlockSettings.create()) {
+        public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+            builder.add(Properties.HORIZONTAL_FACING, Properties.LIT);
+        }
+    }, "campfire_pot", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
+
     public static final Item LEATHER_FLASK = registerItem("leather_flask", new FlaskItem(new Item.Settings().maxCount(1)), ItemGroups.TOOLS);
     public static final Item STONE_HATCHET = registerItem("stone_hatchet", new HatchetItem(ToolMaterials.STONE, 4, 1.8f, new Item.Settings().maxDamage(42)), ItemGroups.TOOLS);
     public static final Item IRON_HATCHET = registerItem("iron_hatchet", new HatchetItem(ToolMaterials.IRON, 5, 1.6f, new Item.Settings().maxDamage(64)), ItemGroups.TOOLS);
@@ -90,7 +113,9 @@ public class ModItems {
     public static ModBlockItem MORTAR = registerExistingBlockWithItem(new MortarBlock(FabricBlockSettings.create().strength(.2f, 0)), "mortar", ItemGroups.FUNCTIONAL);
     public static ModBlockItem CRAFTING_MAT = registerExistingBlockWithItem(new CraftingMat(FabricBlockSettings.create().sounds(BlockSoundGroup.CANDLE)), "crafting_mat", ItemGroups.FUNCTIONAL);
 
-    // Begin blocks\
+    // Begin blocks
+
+
     public static final ModBlockItem RIVERBED_GRAVEL = registerExistingBlockWithItem(new SiftableBlock(FabricBlockSettings.create().strength(0.6F).sounds(BlockSoundGroup.GRAVEL)),"riverbed_gravel", ItemGroups.NATURAL);
 
     public static final ModBlockItem SPRUCE_PLANTER = registerExistingBlockWithItem(new PlanterBlock(FabricBlockSettings.create().sounds(BlockSoundGroup.WOOD)), "spruce_planter", ItemGroups.FUNCTIONAL);
@@ -129,7 +154,7 @@ public class ModItems {
                     .sounds(BlockSoundGroup.HANGING_ROOTS)
                     .dropsLike(ROT_LOG.getLeft())
     ), "rot_slab",
-           ItemGroups.BUILDING_BLOCKS);
+   ItemGroups.BUILDING_BLOCKS);
 
     public static final ModBlockItem OYSTER_MUSHROOM = registerExistingBlockWithEdibleItemUnlockable(
                 new SFPTreeMountedMushroom(
@@ -178,6 +203,32 @@ public class ModItems {
             ItemGroups.FOOD_AND_DRINK,
             new Item.Settings().food(new FoodComponent.Builder().hunger(1).alwaysEdible().statusEffect(new StatusEffectInstance(StatusEffects.POISON, 100, 2), 1.0F).build()
     ));
+    public static final ModBlockItem INKY_MUSHROOM_STEM = registerExistingBlockWithItem(
+            new MushroomBlock(FabricBlockSettings.copyOf(Blocks.MUSHROOM_STEM).luminance(3).sounds(BlockSoundGroup.FUNGUS)),
+            "inky_mushroom_stem",
+            ItemGroups.BUILDING_BLOCKS
+    );
+
+    public static final ModBlockItem INKY_MUSHROOM_BLOCK = registerExistingBlockWithItem(
+            new MushroomBlock(FabricBlockSettings.copyOf(Blocks.RED_MUSHROOM_BLOCK).luminance(3).sounds(BlockSoundGroup.FUNGUS)),
+            "inky_mushroom_block",
+            ItemGroups.BUILDING_BLOCKS
+    );
+    public static final ModBlockItem INKY_MUSHROOM_INK = registerExistingBlockWithItem(
+            new HangingRootsBlock(FabricBlockSettings.copyOf(Blocks.ROOTED_DIRT).luminance(0).sounds(BlockSoundGroup.FUNGUS)),
+            "inky_mushroom_ink",
+            ItemGroups.BUILDING_BLOCKS
+    );
+    public static final ModBlockItem OYSTER_MUSHROOM_STEM = registerExistingBlockWithItem(
+            new MushroomBlock(FabricBlockSettings.copyOf(Blocks.MUSHROOM_STEM).luminance(0).sounds(BlockSoundGroup.FUNGUS)),
+            "oyster_mushroom_stem",
+            ItemGroups.BUILDING_BLOCKS
+    );
+    public static final ModBlockItem OYSTER_MUSHROOM_BLOCK = registerExistingBlockWithItem(
+            new MushroomBlock(FabricBlockSettings.copyOf(Blocks.RED_MUSHROOM_BLOCK).luminance(0).sounds(BlockSoundGroup.FUNGUS)),
+            "oyster_mushroom_block",
+            ItemGroups.BUILDING_BLOCKS
+    );
     public static final ModBlockItem PINE_SAP = registerExistingBlockWithItemHerb(
             new TreeMountedPlane(
                     FabricBlockSettings.create()
@@ -257,6 +308,45 @@ public class ModItems {
     public static final ModBlockItem TOOLRACK_BLOCK = registerExistingBlockWithItem(new ToolrackBlock(FabricBlockSettings.create().noCollision().nonOpaque()), "tool_rack", ItemGroups.FUNCTIONAL);
 
 
+
+
+
+
+
+
+    // begin fantasy
+    public static final GracefulEnchant GRACEFUL_ENCHANTMENT = registerEnchant("graceful", new GracefulEnchant(Enchantment.Rarity.VERY_RARE));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private static <T extends Enchantment> T registerEnchant(String name, T enchantment) {
+        return Registry.register(Registries.ENCHANTMENT, name, enchantment);
+    }
     private static ModBlockItem registerBlockWithItem(String name, float strength, RegistryKey<ItemGroup> group) {
         Block b = Registry.register(Registries.BLOCK, new Identifier("al_herbiary", name), new Block(FabricBlockSettings.create().strength(strength)));
         Item i = Registry.register(Registries.ITEM, new Identifier("al_herbiary", name), new BlockItem(b, new FabricItemSettings()));
@@ -279,7 +369,7 @@ public class ModItems {
         return new ModBlockItem(b,i);
     }
 
-    private static ModBlockItem registerExistingCreativeOnlyBlockWithItem(Block block, String name, RegistryKey<ItemGroup> group, FabricItemSettings itemSettings) {
+    private static ModBlockItem registerBlockAsCreativeOnlyWithItem(Block block, String name, RegistryKey<ItemGroup> group, FabricItemSettings itemSettings) {
         Block b = Registry.register(Registries.BLOCK, new Identifier("al_herbiary", name), block);
         Item i = Registry.register(Registries.ITEM, new Identifier("al_herbiary", name), new OnlyCreativePlaceItem(b, itemSettings));
         ItemGroupEvents.modifyEntriesEvent(group).register(content -> {

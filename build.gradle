@@ -37,6 +37,7 @@ repositories {
     mavenCentral()
     maven { url 'https://maven.wispforest.io' }
     maven { url 'https://maven.blamejared.com' }
+    maven { url = "https://maven.modmuss50.me/" }
 }
 
 dependencies {
@@ -58,7 +59,9 @@ dependencies {
     include "io.wispforest:owo-sentinel:${project.owo_version}"
     include implementation(files("lib/mixinextras-fabric-0.2.0-beta.8.jar"))
     include annotationProcessor(files("lib/mixinextras-fabric-0.2.0-beta.8.jar"))
-    modImplementation "vazkii.patchouli:Patchouli:1.20.1-80-FABRIC-SNAPSHOT"
+    include modImplementation("maven.modrinth:patchouli:PKvFvHeb")
+    include implementation("me.zeroeightsix:fiber:${project.fiber_version}")
+//    modImplementation "vazkii.patchouli:Patchouli:1.20.1-80-FABRIC-SNAPSHOT"
 }
 
 processResources {

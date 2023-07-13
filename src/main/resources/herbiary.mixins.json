@@ -34,6 +34,7 @@
     "Block.LecternBlockEntityRendererMixin",
     "Item.BowItemMixin$ArrowEntityMixin$ArrowEntityRendererMixin",
     "Rendering.BipedEntityPoseMixin",
+    "Rendering.PigEntityModelMixin",
     "World.ClientWorldMixin",
     "World.ClientWorldMixin$WorldRendererMixin",
     "World.ShowBleedParticlesMixin"

@@ -9,10 +9,7 @@ import net.minecraft.entity.ai.control.FlightMoveControl;
 import net.minecraft.entity.ai.control.JumpControl;
 import net.minecraft.entity.ai.control.LookControl;
 import net.minecraft.entity.ai.control.MoveControl;
-import net.minecraft.entity.ai.goal.EscapeDangerGoal;
-import net.minecraft.entity.ai.goal.LookAroundGoal;
-import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -22,6 +19,7 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.PathAwareEntity;
+import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableShoulderEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -67,6 +65,18 @@ public class FieldMouseEntity  extends PathAwareEntity implements GeoEntity {
                 .build();
     }
 
+    @Override
+    protected void mobTick() {
+        this.isScared = !this.getWorld().getOtherEntities(this, Box.of(this.getPos(), 15, 4, 15), entity -> {
+            boolean bl = false;
+            if (entity instanceof PlayerEntity pe) {
+                bl = pe.isCreative();
+            }
+            return FieldMouseEntity.entitiesToRunFrom.contains(entity.getType()) && !bl;
+        }).isEmpty();
+        super.mobTick();
+    }
+
     public FieldMouseEntity(EntityType<? extends PathAwareEntity> entityType, World world) {
         super(entityType, world);
         this.lookControl = new LookControl(this);
@@ -83,43 +93,11 @@ public class FieldMouseEntity  extends PathAwareEntity implements GeoEntity {
         entitiesToRunFrom.add(EntityType.FOX);
         entitiesToRunFrom.add(ModEntityTypes.OWL_ENTITY_TYPE);
     }
-    private static class RunFromDangerGoal extends EscapeDangerGoal {
-        public RunFromDangerGoal(PathAwareEntity mob, double speed) {
-            super(mob, speed);
-        }
-
-        @Override
-        protected boolean isInDanger() {
-            Vec3d pos = this.mob.getPos();
-            boolean hasEntityNearby = !this.mob.getWorld().getOtherEntities(this.mob, Box.of(pos, 15, 4, 15), entity -> {
-                boolean bl = false;
-                if (entity instanceof PlayerEntity pe) {
-                    bl = pe.isCreative();
-                }
-                return FieldMouseEntity.entitiesToRunFrom.contains(entity.getType()) && !bl;
-            }).isEmpty();
-            return super.isInDanger() || hasEntityNearby;
-        }
-
-        @Override
-        public boolean canStart() {
-            return isInDanger() || super.canStart();
-        }
-
-        @Override
-        public void tick() {
-            var m = ((FieldMouseEntity)this.mob);
-            if (m.burrow != null) {
-                this.mob.getNavigation().startMovingAlong(this.mob.getNavigation().findPathTo(m.burrow.getPos(), 10), 1.5f);
-            }
-            super.tick();
-        }
-    }
     public int ticksSinceBurrowLeft = 0;
     @Override
     protected void initGoals() {
         this.goalSelector.add(0, new SwimGoal(this));
-        this.goalSelector.add(1, new RunFromDangerGoal(this, 1.2f));
+        this.goalSelector.add(1, new FleeEntityGoal<>(this, PlayerEntity.class, 16, 1, 2, (LivingEntity lE)-> entitiesToRunFrom.contains(lE.getType())));
         this.goalSelector.add(2, new WanderAroundFarGoal(this, 1f, .5f));
         this.goalSelector.add(3, new LookAroundGoal(this));
     }
@@ -158,7 +136,9 @@ public class FieldMouseEntity  extends PathAwareEntity implements GeoEntity {
     private int ticks = 0;
     @Override
     public void tick() {
-        if (burrow == null) {}
+        if (burrow == null) {
+
+        }
         super.tick();
         ticks++;
         ticksSinceBurrowLeft++;

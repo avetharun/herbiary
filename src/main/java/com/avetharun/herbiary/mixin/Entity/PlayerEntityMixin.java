@@ -2,6 +2,7 @@ package com.avetharun.herbiary.mixin.Entity;
 
 import com.avetharun.herbiary.Herbiary;
 import com.avetharun.herbiary.Items.QuiverItem;
+import com.avetharun.herbiary.ModItems;
 import com.avetharun.herbiary.client.HerbiaryClient;
 import com.avetharun.herbiary.client.PlayerStatus;
 import com.avetharun.herbiary.client.StatusOverlay;
@@ -20,8 +21,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.entity.WardenEntityRenderer;
 import net.minecraft.client.render.entity.feature.WardenFeatureRenderer;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageSources;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffectUtil;
@@ -29,7 +34,9 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.WardenEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ElytraItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.PickaxeItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -39,6 +46,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.DamageSourcePredicate;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.command.TimeCommand;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -93,6 +101,18 @@ public abstract class PlayerEntityMixin {
             return player == client.player;
         } else { // Running on server-side
             return false;
+        }
+    }
+    @Inject(method="handleFallDamage", at=@At(shift= At.Shift.BEFORE, value="INVOKE", target = "Lnet/minecraft/entity/LivingEntity;handleFallDamage(FFLnet/minecraft/entity/damage/DamageSource;)Z"), cancellable = true)
+    void handleFallDamageMixin(float fallDistance, float damageMultiplier, DamageSource damageSource, CallbackInfoReturnable<Boolean> cir){
+        PlayerEntity e = (PlayerEntity) (Object)this;
+        ItemStack s = e.getEquippedStack(EquipmentSlot.CHEST);
+        if (s.isEmpty()) {return;}
+        int enc = EnchantmentHelper.getLevel(ModItems.GRACEFUL_ENCHANTMENT, s);
+        boolean bl1 = s.hasEnchantments() && enc > 0;
+        if (damageSource.isOf(DamageTypes.FLY_INTO_WALL) && bl1) {
+            cir.setReturnValue(false);
+            cir.cancel();
         }
     }
     @Inject(method="readCustomDataFromNbt", at=@At("TAIL"))
@@ -227,39 +247,19 @@ public abstract class PlayerEntityMixin {
     // I don't think server & client get the same datapack, so unless I can make a packet of sorts, this will be the only method.
     @Inject(method="isBlockBreakingRestricted", at=@At("HEAD"), cancellable = true)
     void isBlockBreakingRestricted(World world, BlockPos pos, GameMode gameMode, CallbackInfoReturnable<Boolean> cir) {
-        if (gameMode.isCreative()) {
-            cir.setReturnValue(false);
-            cir.cancel();
+        if (gameMode.isCreative() || !world.isClient) {
+            return;
         }
-        if (world.isClient && !HerbiaryClient.CanBreakVanillaBlocks) {
+        if (!HerbiaryClient.CanBreakVanillaBlocks && HerbiaryClient.CanMineStoneLikeBlocks && world.getBlockState(pos).isIn(BlockTags.PICKAXE_MINEABLE)) {
+            return;
+        }
+
+        else if (!HerbiaryClient.CanBreakVanillaBlocks) {
             if (Herbiary.AllowedHerbiaryBreakables.contains(world.getBlockState(pos).getBlock())) {
-                cir.setReturnValue(false);
-                cir.cancel();
+                return;
             } else {
                 cir.setReturnValue(true);
                 cir.cancel();
-            }
-        }
-        if (!world.isClient) {
-            boolean canBreakVanillaBlocks = world.getGameRules().getBoolean(Herbiary.ALLOW_VANILLA_BLOCK_BREAKING);
-            boolean blockIsAllowed = world.getBlockState(pos).isIn(Herbiary.ALLOWED_VANILLA_BREAKABLES);
-            if (!canBreakVanillaBlocks && !blockIsAllowed) {
-                cir.setReturnValue(true);
-                cir.cancel();
-            }
-            if (!canBreakVanillaBlocks && blockIsAllowed) {
-                cir.setReturnValue(false);
-            } else if (canBreakVanillaBlocks) {
-                if (!gameMode.isBlockBreakingRestricted()) {
-                    cir.setReturnValue(false);
-                } else if (gameMode == GameMode.SPECTATOR) {
-                    cir.setReturnValue(true);
-                } else if (this.canModifyBlocks()) {
-                    cir.setReturnValue(false);
-                } else {
-                    ItemStack itemStack = (((LivingEntity) (Object) this)).getMainHandStack();
-                    cir.setReturnValue(itemStack.isEmpty() || !itemStack.canDestroy(world.getRegistryManager().get(RegistryKeys.BLOCK), new CachedBlockPosition(world, pos, false)));
-                }
             }
         }
     }

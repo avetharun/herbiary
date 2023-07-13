@@ -3,17 +3,17 @@
     "subtitle": "subtitles.al_herbiary.spear_throw",
     "sounds": [
       {
-        "name": "item/bundle/drop_contents1",
+        "name": "minecraft:item/bundle/drop_contents1",
         "pitch": 0.3
       },
-      "item/bundle/drop_contents2",
+      "minecraft:item/bundle/drop_contents2",
       {
-        "name": "item/bundle/drop_contents2",
+        "name": "minecraft:item/bundle/drop_contents2",
         "pitch": 0.2
       },
-      "item/bundle/drop_contents3",
+      "minecraft:item/bundle/drop_contents3",
       {
-        "name": "item/bundle/drop_contents3",
+        "name": "minecraft:item/bundle/drop_contents3",
         "pitch": 0.25
       }
     ]

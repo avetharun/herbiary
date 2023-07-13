@@ -96,9 +96,9 @@ public class FlintIgniter extends FlintAndSteelItem {
             p.stack = stack;
             if (random.nextInt(0, 100) > 85) {
                 p.succeeded = true;
-                world.playSound(playerEntity, blockPos, HerbiarySoundEvents.FLINT_FAIL, SoundCategory.BLOCKS, 0.7F, world.getRandom().nextFloat() * 0.4F + 0.8F);
+                world.playSound(playerEntity, blockPos, Herbiary.FLINT_FAIL, SoundCategory.BLOCKS, 0.7F, world.getRandom().nextFloat() * 0.4F + 0.8F);
             } else {
-                world.playSound(playerEntity, blockPos, HerbiarySoundEvents.FLINT_FAIL, SoundCategory.BLOCKS, 0.7F, world.getRandom().nextFloat() * 0.4F + 0.8F);
+                world.playSound(playerEntity, blockPos, Herbiary.FLINT_FAIL, SoundCategory.BLOCKS, 0.7F, world.getRandom().nextFloat() * 0.4F + 0.8F);
             }
 
             p.write(buf);

@@ -52,13 +52,16 @@ public abstract class CampfireBlockEntityMixin {
     void toInitialChunkDataNbtMixin(CallbackInfoReturnable<NbtCompound> cir, NbtCompound nbtCompound) {
         NbtCompound c = new NbtCompound();
         this.occupation.writeNbt(c);
+        nbtCompound.put("customData", customData);
         nbtCompound.put("occupation", c);
     }
+    public NbtCompound customData = new NbtCompound();
     int ticksSinceBegunBurning = 0;
     Stack<ItemStack> itemsBeingBurned;
     public ItemStack occupation = ItemStack.EMPTY;
     @Inject(method="readNbt", at=@At("TAIL"))
     void readNbtMixin(NbtCompound nbt, CallbackInfo ci) {
+        this.customData = nbt.getCompound("customData");
         this.occupation = ItemStack.fromNbt(nbt.getCompound("occupation"));
 //        System.out.println(nbt);
         CampfireBlockEntity e = (CampfireBlockEntity) (Object)this;

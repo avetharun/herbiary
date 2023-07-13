@@ -37,7 +37,7 @@ public class HerbiarySpearItemEntity extends PersistentProjectileEntity {
         return this.tridentStack.copy();
     }
     protected SoundEvent getHitSound() {
-        return HerbiarySoundEvents.SPEAR_LAND;
+        return Herbiary.SPEAR_LAND;
     }
 
 
@@ -46,7 +46,7 @@ public class HerbiarySpearItemEntity extends PersistentProjectileEntity {
 
         this.tridentStack = stack;
         owner = _owner;
-        world.playSound(null, _owner.getBlockPos(), HerbiarySoundEvents.SPEAR_THROWN, SoundCategory.PLAYERS, 1, 1);
+        world.playSound(null, _owner.getBlockPos(), Herbiary.SPEAR_THROWN, SoundCategory.PLAYERS, 1, 1);
     }
     @Override
     // Never age

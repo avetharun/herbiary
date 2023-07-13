@@ -580,24 +580,7 @@
 		},
 		"animation.field_mouse.idle": {
 			"loop": true,
-			"animation_length": 4,
-			"bones": {
-				"head": {
-					"rotation": {
-						"0.0": {
-							"vector": [0, 0, 0]
-						},
-						"2.0": {
-							"vector": [0, 0, -2.5],
-							"easing": "easeInSine"
-						},
-						"4.0": {
-							"vector": [0, 0, 0],
-							"easing": "easeOutSine"
-						}
-					}
-				}
-			}
+			"animation_length": 4
 		}
 	}
 }

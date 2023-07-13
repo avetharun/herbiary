@@ -1,5 +1,6 @@
 package com.avetharun.herbiary.client.entity;
 
+import com.avetharun.herbiary.Herbiary;
 import com.avetharun.herbiary.HerbiarySoundEvents;
 import com.avetharun.herbiary.entity.ModEntityTypes;
 import com.avetharun.herbiary.entity.TentEntity;
@@ -64,7 +65,7 @@ public class TentSpawner extends Item {
             ItemStack itemStack = context.getStack();
             itemStack.decrement(1);
         }
-        world.playSound(context.getHitPos().x,context.getHitPos().y,context.getHitPos().z, HerbiarySoundEvents.UNZIP_TENT, SoundCategory.BLOCKS, 1f, 1f, true);
+        world.playSound(context.getHitPos().x,context.getHitPos().y,context.getHitPos().z, Herbiary.UNZIP_TENT, SoundCategory.BLOCKS, 1f, 1f, true);
         return ActionResult.CONSUME;
     }
 }

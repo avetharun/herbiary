@@ -174,15 +174,15 @@ public abstract class BowItemMixin {
             boolean has_NormalArrow = false;
 
             if (stackHead.isOf(ModItems.QUIVER)) {
-                if (stackHead.getOrCreateNbt().contains("arrows") && alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.NORMAL) {
-                    if (stackHead.getOrCreateNbt().getInt("arrows") >= 1) {
+                if ((stackHead.getOrCreateNbt().contains("arrows")|| ((PlayerEntity) user).isCreative()) && alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.NORMAL) {
+                    if (((PlayerEntity) user).isCreative() || stackHead.getOrCreateNbt().getInt("arrows") >= 1) {
                         has_quiver_equipped = true;
                         has_NormalArrow = true;
                     }
                     itemStack = Items.ARROW.getDefaultStack();
                 }
-                if (stackHead.getOrCreateNbt().contains("sharp_arrows") && alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.SHARPENED) {
-                    if (stackHead.getOrCreateNbt().getInt("sharp_arrows") >= 1) {
+                if ((stackHead.getOrCreateNbt().contains("sharp_arrows")|| ((PlayerEntity) user).isCreative())&& alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.SHARPENED) {
+                    if (((PlayerEntity) user).isCreative() || stackHead.getOrCreateNbt().getInt("sharp_arrows") >= 1) {
                         has_quiver_equipped = true;
                         has_SharpArrow = true;
                     }
@@ -238,7 +238,7 @@ public abstract class BowItemMixin {
                                 playerEntity.getInventory().removeOne(itemStack);
                             }
                         }
-                        if (has_quiver_equipped) {
+                        if (has_quiver_equipped && !((PlayerEntity) user).isCreative()) {
                             if (has_NormalArrow && alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.NORMAL) {
                                 int _i = stackHead.getOrCreateNbt().getInt("arrows");
                                 stackHead.getOrCreateNbt().putInt("arrows", _i - 1);

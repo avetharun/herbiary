@@ -108,31 +108,34 @@ public abstract class CampfireMixin {
             if (!world.isClient) {
                 alib.runPrivateMixinMethod(campfireBlockEntity, "addBurnItem", player, player.getAbilities().creativeMode ? itemStack.copy() : itemStack, 100);
                 player.incrementStat(Stats.INTERACT_WITH_CAMPFIRE);
-                cir.setReturnValue(ActionResult.CONSUME);
-                return;
             }
+            cir.setReturnValue(ActionResult.SUCCESS);
+            return;
         }
 
 
         if (itemStack.isIn(Herbiary.CAMPFIRE_PLACEABLE_ITEMS) && !state.get(Properties.OCCUPIED) && !player.isSneaking()) {
             alib.setMixinField(campfireBlockEntity, "occupation", itemStack.copyWithCount(1));
-            itemStack.decrement(1);
-            world.setBlockState(pos,state.with(Properties.OCCUPIED, true));
+            if (!world.isClient) {
+                itemStack.decrement(1);
+                world.setBlockState(pos, state.with(Properties.OCCUPIED, true));
+            }
             cir.setReturnValue(ActionResult.CONSUME);
             return;
         } else if (player.isSneaking() && state.get(Properties.OCCUPIED)) {
-            world.setBlockState(pos, state.with(Properties.OCCUPIED, false));
-            ItemStack s = alib.getMixinField(campfireBlockEntity, "occupation");
-            if (s != null && s != ItemStack.EMPTY) {
-                alib.setMixinField(campfireBlockEntity, "occupation", ItemStack.EMPTY);
-                Vec3d p = pos.toCenterPos();
-                world.spawnEntity(new ItemEntity(world, p.x, p.y, p.z, s));
-                cir.setReturnValue(ActionResult.CONSUME);
-                return;
+            if (!world.isClient) {
+                world.setBlockState(pos, state.with(Properties.OCCUPIED, false));
+                ItemStack s = alib.getMixinField(campfireBlockEntity, "occupation");
+                if (s != null && s != ItemStack.EMPTY) {
+                    alib.setMixinField(campfireBlockEntity, "occupation", ItemStack.EMPTY);
+                    Vec3d p = pos.toCenterPos();
+                    world.spawnEntity(new ItemEntity(world, p.x, p.y, p.z, s));
+                }
             }
-        } else if (!player.isSneaking() && state.get(Properties.OCCUPIED) && !world.isClient) {
+            cir.setReturnValue(ActionResult.CONSUME);
+        } else if (!player.isSneaking() && state.get(Properties.OCCUPIED)) {
             ItemStack s = alib.getMixinField(campfireBlockEntity, "occupation");
-            if (s != null && s != ItemStack.EMPTY) {
+            if (s != null && s != ItemStack.EMPTY && world.isClient) {
                 Identifier rID = Registries.ITEM.getId(s.getItem());
                 if (ModRegistries.CAMPFIRE_SCREENS.containsId(rID)) {
                     var e = ModRegistries.CAMPFIRE_SCREENS.get(rID);
@@ -141,12 +144,14 @@ public abstract class CampfireMixin {
                     ScreenHandlerType ty = e.type;
                     assert e.type != null;
                     player.openHandledScreen(createScreenHandlerFactory(state, world, pos, s, rID, ty));
-                    cir.setReturnValue(ActionResult.CONSUME);
-                    return;
                 }
+                cir.setReturnValue(ActionResult.CONSUME);
             }
         }
-        if (state.get(Properties.AGE_4) == 0) {cir.setReturnValue(ActionResult.PASS);};
+        if (state.get(Properties.AGE_4) == 0) {
+            cir.setReturnValue(ActionResult.PASS);
+            cir.cancel();
+        }
     }
 
     @Nullable

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "al_herbiary:block/inky_mushroom_stem_sides",
+    "side": "al_herbiary:block/inky_mushroom_stem_tops"
+  }
+}

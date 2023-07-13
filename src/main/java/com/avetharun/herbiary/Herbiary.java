@@ -21,7 +21,6 @@ import com.avetharun.herbiary.screens.WorkstationScreenHandler;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.brigadier.CommandDispatcher;
-import io.netty.handler.codec.json.JsonObjectDecoder;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
@@ -30,18 +29,16 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.SpawnEggItem;
+import net.minecraft.item.*;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
 import net.minecraft.particle.DefaultParticleType;
@@ -50,33 +47,31 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.registry.tag.WorldPresetTags;
+import net.minecraft.resource.featuretoggle.FeatureFlag;
 import net.minecraft.resource.featuretoggle.FeatureFlags;
+import net.minecraft.resource.featuretoggle.FeatureManager;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.WorldPreset;
-import net.minecraft.world.gen.WorldPresets;
-import vazkii.patchouli.api.PatchouliAPI;
-import vazkii.patchouli.client.jei.PatchouliJeiPlugin;
+import net.minecraft.world.poi.PointOfInterestType;
 import vazkii.patchouli.common.book.Book;
 import vazkii.patchouli.common.book.BookRegistry;
 import vazkii.patchouli.fabric.xplat.FabricXplatModContainer;
-import vazkii.patchouli.xplat.XplatModContainer;
 
 import java.util.ArrayList;
 import java.util.List;
+
 public class Herbiary implements ModInitializer {
     public static RegistryKey<Registry<HerbDescriptor>> HERB_DESCRIPTOR_KEY;
     public static Registry<HerbDescriptor> HERB_DESCRIPTORS;
@@ -85,25 +80,30 @@ public class Herbiary implements ModInitializer {
             .data("{\"text\":\"You haven't found this herb yet.\"}")
             .build();
     public static List<Block> AllowedHerbiaryBreakables = new ArrayList<>();
+    public static final RegistryKey<PointOfInterestType> POI_NEST_KEY = RegistryKey.of(RegistryKeys.POINT_OF_INTEREST_TYPE, new Identifier("nest"));
+    public static final PointOfInterestType POI_NEST = alib.registerPOIType(POI_NEST_KEY, alib.getStatesOfBlock(ModItems.BIRD_NEST_BLOCK.getLeft()), 1, 1);
+
+    public static void updateGameRules(MinecraftServer minecraftServer) {
+        sendAllPlayersBreakables(minecraftServer.getPlayerManager());
+    }
     public static final GameRules.Key<GameRules.BooleanRule> ALLOW_VANILLA_RECIPES_UNLOCK =
-            GameRuleRegistry.register("allowVanillaRecipesUnlock", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false));
+            GameRuleRegistry.register("allowVanillaRecipesUnlock", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true));
     public static final GameRules.Key<GameRules.BooleanRule> ALLOW_HERB_PLACEMENTS =
-            GameRuleRegistry.register("allowHerbPlacements", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false,
+            GameRuleRegistry.register("allowHerbPlacements", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true,
                     ((minecraftServer, booleanRule) -> {
-                        System.out.println("updated herb placements");
-                        sendAllPlayersBreakables(minecraftServer.getPlayerManager());
+                        updateGameRules(minecraftServer);
                     }
             )));
 
     public static final GameRules.Key<GameRules.BooleanRule> ALLOW_VANILLA_BLOCK_BREAKING =
-            GameRuleRegistry.register("allowVanillaBlockBreaking", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false,
+            GameRuleRegistry.register("allowVanillaBlockBreaking", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true,
                     ((minecraftServer, booleanRule) -> {
-                        System.out.println("updated block breaking");
-                        sendAllPlayersBreakables(minecraftServer.getPlayerManager());
+                        updateGameRules(minecraftServer);
                     }
             )));
+    public static final GameRules.Key<GameRules.BooleanRule> ALLOW_STONE_MINING = GameRuleRegistry.register("allowMiningStoneLike", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true));
     public static final GameRules.Key<GameRules.BooleanRule> ALLOW_VANILLA_RECIPES_CRAFT =
-            GameRuleRegistry.register("allowVanillaRecipesCraft", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false));
+            GameRuleRegistry.register("allowVanillaRecipesCraft", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true));
     public static String MOD_ID = "al_herbiary";
     public static Item OWL_SPAWN_EGG;
     public static Item MOUSE_SPAWN_EGG;
@@ -123,7 +123,12 @@ public class Herbiary implements ModInitializer {
               "landing_text": "A guide you wrote which has various plants and animals you have found",
               "version": 0,
               "use_resource_pack": true,
-              "model":""
+              "model":"al_herbiary:herb_book",
+              "creative_tab":"tools_and_utilities",
+              "subtitle":"",
+              "show_progress":false,
+              "book_texture":"al_herbiary:textures/gui/book/field_guide_book_background.png"
+              
             }
             """;
     public static Book HERBIARY_FIELD_GUIDE_PATCHOULI_BOOK;
@@ -132,8 +137,8 @@ public class Herbiary implements ModInitializer {
 
     public static Identifier IGNITER_IGNITE_PACKET_ID = new Identifier("al_herbiary", "c2s_igniter_ignited");
     public static Identifier SET_ARROW_TYPE_PACKET_ID = new Identifier("al_herbiary", "c2s_set_bow_type");
-    public static Identifier SYNC_BREAKABLES_PACKET_ID = new Identifier("al_herbiary", "sync");
-    public static Identifier UNLOCK_ITEM_PACKET_ID = new Identifier("al_herbiary", "s2c_unlock_item");
+    public static Identifier HERBIARY_SYNC_PACKET_ID = new Identifier("al_herbiary", "sync");
+    public static Identifier UNLOCK_ITEM_PACKET_ID = new Identifier("al_herbiary", "s2c_unlock_item_name");
     public static Identifier C2S_TRY_LEARN_ITEM_PACKET_ID = new Identifier("al_herbiary", "c2s_try_unlock_item");
     public static TagKey<Block> LAMPS = TagKey.of(RegistryKeys.BLOCK, new Identifier("al_herbiary", "lamps"));
     public static TagKey<Block> MUSHROOM_PLACEABLE = TagKey.of(RegistryKeys.BLOCK, new Identifier("al_herbiary", "mushroom_placeable"));
@@ -151,29 +156,30 @@ public class Herbiary implements ModInitializer {
     public static TagKey<Item> CAMPFIRE_PLACEABLE_ITEMS = TagKey.of(RegistryKeys.ITEM, new Identifier("al_herbiary", "campfire_placeable_items"));
     public static TagKey<Item> BOWS = TagKey.of(RegistryKeys.ITEM, new Identifier("al_herbiary", "bows"));
     public static TagKey<Item> ITEMS_THAT_BURN = TagKey.of(RegistryKeys.ITEM, new Identifier("al_herbiary", "items_that_burn"));
-    public static void sendAllPlayersBreakables(PlayerManager manager) {
-        HerbiaryBlockStateInitPacket p = new HerbiaryBlockStateInitPacket();
+
+    private static PacketByteBuf gameRuleTick(HerbiaryBlockStateInitPacket p, MinecraftServer server) {
         alib.GetAllBlocksInTagAnd(ALLOWED_VANILLA_BREAKABLES, (pair) -> {
             p.appendBlock(pair.getLeft());
         });
-        p.allow_vanilla_breaking = manager.getServer().getGameRules().getBoolean(ALLOW_VANILLA_BLOCK_BREAKING);
-        p.allow_herb_placement = manager.getServer().getGameRules().getBoolean(ALLOW_HERB_PLACEMENTS);
+        p.allow_vanilla_breaking = server.getGameRules().getBoolean(ALLOW_VANILLA_BLOCK_BREAKING);
+        p.allow_herb_placement = server.getGameRules().getBoolean(ALLOW_HERB_PLACEMENTS);
+        p.allow_mining_ores_and_stone = server.getGameRules().getBoolean(ALLOW_STONE_MINING);
+
         PacketByteBuf out = PacketByteBufs.create();
         p.write(out);
+        return out;
+    }
+
+    public static void sendAllPlayersBreakables(PlayerManager manager) {
+        var out = gameRuleTick(new HerbiaryBlockStateInitPacket(), manager.getServer());
         manager.getPlayerList().forEach(player->{
-            ServerPlayNetworking.send(player, Herbiary.SYNC_BREAKABLES_PACKET_ID, out);
+            ServerPlayNetworking.send(player, Herbiary.HERBIARY_SYNC_PACKET_ID, out);
         });
     }
     public static void sendPlayerBreakables(ServerPlayerEntity player) {
-        HerbiaryBlockStateInitPacket p = new HerbiaryBlockStateInitPacket();
-        alib.GetAllBlocksInTagAnd(ALLOWED_VANILLA_BREAKABLES, (pair) -> {
-            p.appendBlock(pair.getLeft());
-        });
-        p.allow_vanilla_breaking = player.getWorld().getGameRules().getBoolean(ALLOW_VANILLA_BLOCK_BREAKING);
-        p.allow_herb_placement = player.getWorld().getGameRules().getBoolean(ALLOW_HERB_PLACEMENTS);
-        PacketByteBuf out = PacketByteBufs.create();
-        p.write(out);
-        ServerPlayNetworking.send(player, Herbiary.SYNC_BREAKABLES_PACKET_ID, out);
+        assert player != null && player.getServer() != null;
+        var out = gameRuleTick(new HerbiaryBlockStateInitPacket(), player.getServer());
+        ServerPlayNetworking.send(player, Herbiary.HERBIARY_SYNC_PACKET_ID, out);
     }
     public static DefaultParticleType FLINT_SPARK = FabricParticleTypes.simple();
     public static DefaultParticleType FLINT_SPARK_SMOKE = FabricParticleTypes.simple();
@@ -190,9 +196,8 @@ public class Herbiary implements ModInitializer {
             dispatcher.register(CommandManager.literal("patchouli_get_books").executes(context -> {
                 BookRegistry.INSTANCE.books.forEach((identifier, book) -> {
                     System.out.println("?????");
-                    context.getSource().sendMessage(Text.of("id: " + identifier.toString() + " with ns " + book.getModNamespace()));
+                    context.getSource().sendMessage(Text.of("id: " + identifier.toString()));
                 });
-
                 return 1;
             }));
         });
@@ -209,13 +214,23 @@ public class Herbiary implements ModInitializer {
                 (new Item.Settings())));
 
         Registry.register(Registries.STATUS_EFFECT, new Identifier("al_herbiary", "bleed"), EFFECT_BLEED);
-        Registry.register(Registries.SOUND_EVENT, HerbiarySoundEvents.SPEAR_THROWN_ID, HerbiarySoundEvents.SPEAR_THROWN);
-        Registry.register(Registries.SOUND_EVENT, HerbiarySoundEvents.ROCK_STRIKE_ID, HerbiarySoundEvents.ROCK_STRIKE);
+        Registry.register(Registries.SOUND_EVENT, Herbiary.SPEAR_THROWN_ID, Herbiary.SPEAR_THROWN);
+        Registry.register(Registries.SOUND_EVENT, Herbiary.SPEAR_LAND_ID, Herbiary.SPEAR_LAND);
+        Registry.register(Registries.SOUND_EVENT, Herbiary.FLINT_SUCCEED_ID, Herbiary.FLINT_SUCCEED);
+        Registry.register(Registries.SOUND_EVENT, Herbiary.UNZIP_TENT_ID, Herbiary.UNZIP_TENT);
+        Registry.register(Registries.SOUND_EVENT, Herbiary.FLINT_FAIL_ID, Herbiary.FLINT_FAIL);
+        Registry.register(Registries.SOUND_EVENT, Herbiary.ROCK_STRIKE_ID, Herbiary.ROCK_STRIKE);
         OwlSpawner owlSpawner = new OwlSpawner();
 
         RecipesUtil.WORKSTATION_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, RecipesUtil.MORTAR_ID, new ScreenHandlerType<>(WorkstationScreenHandler.Factory::create, FeatureSet.of(FeatureFlags.VANILLA)));
+
+
         RecipesUtil.POT_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, RecipesUtil.POT_ID, new ScreenHandlerType<>(CampfirePotScreenHandler.Factory::create, FeatureSet.of(FeatureFlags.VANILLA)));
+        ModRegistries.registerCampfireScreen(new Identifier("campfire.al_herbiary.pot"), RecipesUtil.POT_SCREEN_HANDLER);
+
+
         BackpackScreenHandler.BACKPACK_SCREEN_HANDLER_TYPE = Registry.register(Registries.SCREEN_HANDLER, BackpackScreenHandler.SID, new ScreenHandlerType<>(BackpackScreenHandler::new, FeatureSet.of(FeatureFlags.VANILLA)));
+
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             sendPlayerBreakables(handler.player);
 
@@ -277,4 +292,43 @@ public class Herbiary implements ModInitializer {
 
         Registry.register(ModRegistries.CAMPFIRE_SCREENS, new Identifier("al_herbiary", "campfire_pot"), new ModRegistries.CampfireScreenEntry(RecipesUtil.POT_SCREEN_HANDLER));
     }
+    public static final FeatureFlag HERBIARY_FANTASY;
+    public static final ItemGroup HERBIARY_FANTASY_BLOCKS = FabricItemGroup.builder()
+            .icon(() -> new ItemStack(ModItems.INKY_MUSHROOM_BLOCK.getRight()))
+            .displayName(Text.translatable("itemGroup.al_herbiary.fantasy"))
+            .build();
+    static {
+        FeatureManager.Builder builder = new FeatureManager.Builder("main");
+        HERBIARY_FANTASY = builder.addFlag(new Identifier("c", "fantasy"));
+    }
+
+
+
+    public static final Identifier SPEAR_THROWN_ID;
+    public static final Identifier SPEAR_LAND_ID;
+    public static final Identifier FLINT_FAIL_ID;
+    public static final Identifier FLINT_SUCCEED_ID;
+    public static final Identifier UNZIP_TENT_ID;
+    public static final Identifier ROCK_STRIKE_ID;
+    public static SoundEvent ROCK_STRIKE;
+    public static SoundEvent UNZIP_TENT;
+    public static SoundEvent FLINT_SUCCEED;
+    public static SoundEvent FLINT_FAIL;
+    public static SoundEvent SPEAR_LAND;
+    public static SoundEvent SPEAR_THROWN;
+    static {
+        SPEAR_THROWN_ID = new Identifier("al_herbiary:spear_thrown");
+        SPEAR_THROWN = SoundEvent.of(SPEAR_THROWN_ID);
+        SPEAR_LAND_ID = new Identifier("al_herbiary:spear_land");
+        SPEAR_LAND = SoundEvent.of(SPEAR_LAND_ID);
+        FLINT_FAIL_ID = new Identifier("al_herbiary:flint_fail");
+        FLINT_FAIL = SoundEvent.of(FLINT_FAIL_ID);
+        FLINT_SUCCEED_ID = new Identifier("al_herbiary:flint_succeed");
+        FLINT_SUCCEED = SoundEvent.of(FLINT_SUCCEED_ID);
+        UNZIP_TENT_ID = new Identifier("al_herbiary:unzip_tent");
+        UNZIP_TENT = SoundEvent.of(UNZIP_TENT_ID);
+        ROCK_STRIKE_ID = new Identifier("al_herbiary:rock_strike");
+        ROCK_STRIKE = SoundEvent.of(ROCK_STRIKE_ID);
+    }
+
 }
