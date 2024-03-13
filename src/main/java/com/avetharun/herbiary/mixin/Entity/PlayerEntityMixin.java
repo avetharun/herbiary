@@ -6,60 +6,32 @@ import com.avetharun.herbiary.ModItems;
 import com.avetharun.herbiary.client.HerbiaryClient;
 import com.avetharun.herbiary.client.PlayerStatus;
 import com.avetharun.herbiary.client.StatusOverlay;
-import com.avetharun.herbiary.entity.ModEntityTypes;
 import com.avetharun.herbiary.hUtil.alib;
-import com.avetharun.herbiary.packet.UnlockItemNamePacket;
+import com.avetharun.herbiary.hUtil.iface.PlayerEntityAccessor;
 import com.mojang.authlib.GameProfile;
-import com.mojang.datafixers.util.Either;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.pattern.CachedBlockPosition;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.entity.WardenEntityRenderer;
-import net.minecraft.client.render.entity.feature.WardenFeatureRenderer;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffectUtil;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.WardenEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ElytraItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.PickaxeItem;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.predicate.entity.DamageSourcePredicate;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.command.TimeCommand;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.stat.Stat;
-import net.minecraft.stat.Stats;
-import net.minecraft.text.Text;
-import net.minecraft.util.Unit;
 import net.minecraft.util.math.*;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -67,10 +39,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 @Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin {
+public abstract class PlayerEntityMixin extends LivingEntity implements PlayerEntityAccessor {
+    protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
+        super(entityType, world);
+    }
+
+    @Override
+    public boolean isSifting() {
+        return isSifting;
+    }
+
+    @Override
+    public void setSifting(boolean state) {
+        isSifting = state;
+    }
+
+    @Unique
     public boolean isSifting;
     public QuiverItem.BowArrowType selectedArrowType = QuiverItem.BowArrowType.NORMAL;
     @Mixin(ServerPlayerEntity.class)
@@ -103,6 +89,8 @@ public abstract class PlayerEntityMixin {
             return false;
         }
     }
+    @Unique
+    public int ticksUntilZipwingAvailable = 0;
     @Inject(method="handleFallDamage", at=@At(shift= At.Shift.BEFORE, value="INVOKE", target = "Lnet/minecraft/entity/LivingEntity;handleFallDamage(FFLnet/minecraft/entity/damage/DamageSource;)Z"), cancellable = true)
     void handleFallDamageMixin(float fallDistance, float damageMultiplier, DamageSource damageSource, CallbackInfoReturnable<Boolean> cir){
         PlayerEntity e = (PlayerEntity) (Object)this;
@@ -149,6 +137,7 @@ public abstract class PlayerEntityMixin {
     boolean isWet = false;
     boolean coolOff = false;
     int ticksSinceBegunSleeping = 0;
+
     @Inject(method="tick", at=@At("TAIL"))
     void tickStatuses(CallbackInfo ci) {
         PlayerEntity e = (PlayerEntity) (Object)this;
@@ -177,7 +166,7 @@ public abstract class PlayerEntityMixin {
             float temperature = biome.getTemperature();
             // hot status
             // find any heat sources near the player in a 1 block radius
-            if ((biome.getTemperature() > 1.25f && e.getWorld().getLightLevel(e.getBlockPos()) > 2) || (e.getWorld().getLightLevel(e.getBlockPos()) >= 8)) {
+            if ((biome.getTemperature() > 1.25f && e.getWorld().getLightLevel(e.getBlockPos()) > 2) || (e.getWorld().isNight() && e.getWorld().getLightLevel(e.getBlockPos()) >= 12)) {
                 isHot = true;
                 if (!coolOff) {
                     increment = 0.05f;
@@ -247,20 +236,22 @@ public abstract class PlayerEntityMixin {
     // I don't think server & client get the same datapack, so unless I can make a packet of sorts, this will be the only method.
     @Inject(method="isBlockBreakingRestricted", at=@At("HEAD"), cancellable = true)
     void isBlockBreakingRestricted(World world, BlockPos pos, GameMode gameMode, CallbackInfoReturnable<Boolean> cir) {
-        if (gameMode.isCreative() || !world.isClient) {
-            return;
-        }
-        if (!HerbiaryClient.CanBreakVanillaBlocks && HerbiaryClient.CanMineStoneLikeBlocks && world.getBlockState(pos).isIn(BlockTags.PICKAXE_MINEABLE)) {
-            return;
-        }
 
-        else if (!HerbiaryClient.CanBreakVanillaBlocks) {
-            if (Herbiary.AllowedHerbiaryBreakables.contains(world.getBlockState(pos).getBlock())) {
-                return;
-            } else {
-                cir.setReturnValue(true);
-                cir.cancel();
-            }
-        }
+        // Until further notice: This will NOT be modified! Replace vanilla blocks instead!!!
+//        if (gameMode.isCreative() || !world.isClient) {
+//            return;
+//        }
+//        if (!HerbiaryClient.CanBreakVanillaBlocks && HerbiaryClient.CanMineStoneLikeBlocks && world.getBlockState(pos).isIn(BlockTags.PICKAXE_MINEABLE)) {
+//            return;
+//        }
+//
+//        else if (!HerbiaryClient.CanBreakVanillaBlocks) {
+//            if (Herbiary.AllowedHerbiaryBreakables.contains(world.getBlockState(pos).getBlock())) {
+//                return;
+//            } else {
+//                cir.setReturnValue(true);
+//                cir.cancel();
+//            }
+//        }
     }
 }

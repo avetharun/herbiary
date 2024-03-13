@@ -3,6 +3,7 @@ package com.avetharun.herbiary.block;
 import com.avetharun.herbiary.Items.SmallBackpackItem;
 import com.avetharun.herbiary.ModItems;
 import com.avetharun.herbiary.entity.block.BackpackBlockEntity;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -28,6 +29,12 @@ public class BackpackBlock extends BlockWithEntity {
     public BackpackBlock(Settings settings) {
         super(settings);
     }
+
+    @Override
+    protected MapCodec<? extends BlockWithEntity> getCodec() {
+        return BlockWithEntity.createCodec(BackpackBlock::new);
+    }
+
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {

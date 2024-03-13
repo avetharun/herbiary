@@ -9,6 +9,7 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -47,7 +48,7 @@ public class WorkstationScreen extends HandledScreen<WorkstationScreenHandler> {
     }
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
-        this.renderBackground(context);
+        this.renderBackground(context, mouseX, mouseY, delta);
         int i = this.x;
         int j = this.y;
         context.drawTexture(TEXTURE, i, j, 0, 0, this.backgroundWidth, this.backgroundHeight);
@@ -66,7 +67,7 @@ public class WorkstationScreen extends HandledScreen<WorkstationScreenHandler> {
             int i = this.x + 52;
             int j = this.y + 14;
             int k = this.scrollOffset + 12;
-            List<WorkstationRecipe> list = this.handler.getAvailableRecipes();
+            List<RecipeEntry<WorkstationRecipe>> list = this.handler.getAvailableRecipes();
             int _i = 0;
             for(int l = this.scrollOffset; l < k && l < this.handler.getAvailableRecipeCount(); ++l, _i++) {
                 int m = l - this.scrollOffset;
@@ -75,7 +76,7 @@ public class WorkstationScreen extends HandledScreen<WorkstationScreenHandler> {
                 if (x >= n && x < n + 16 && y >= o && y < o + 18) {
                     assert this.client != null;
                     assert this.client.world != null;
-                    ItemStack s = list.get(_i).getOutput(this.client.world.getRegistryManager());
+                    ItemStack s = list.get(_i).value().getResult(this.client.world.getRegistryManager());
                     matrices.drawItemTooltip(MinecraftClient.getInstance().textRenderer, s, x, y);
                 }
             }
@@ -102,14 +103,14 @@ public class WorkstationScreen extends HandledScreen<WorkstationScreenHandler> {
     }
 
     private void renderRecipeIcons(DrawContext matrices, int x, int y, int scrollOffset) {
-        List<WorkstationRecipe> list = ((WorkstationScreenHandler)this.handler).getAvailableRecipes();
+        List<RecipeEntry<WorkstationRecipe>> list = ((WorkstationScreenHandler)this.handler).getAvailableRecipes();
 
         for(int i = this.scrollOffset; i < scrollOffset && i < ((WorkstationScreenHandler)this.handler).getAvailableRecipeCount(); ++i) {
             int j = i - this.scrollOffset;
             int k = x + j % 4 * 16;
             int l = j / 4;
             int m = y + l * 18 + 2;
-            ItemStack s =list.get(i).getOutput(this.client.world.getRegistryManager());
+            ItemStack s =list.get(i).value().getResult(this.client.world.getRegistryManager());
             if (s == null) {continue;}
             matrices.drawItem(s,k,m);
         }

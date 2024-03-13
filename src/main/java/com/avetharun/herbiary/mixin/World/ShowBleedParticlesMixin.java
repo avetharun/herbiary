@@ -18,15 +18,15 @@ public abstract class ShowBleedParticlesMixin {
 
     @Shadow public abstract StatusEffect getEffectType();
 
-    @Inject(method = "shouldShowParticles()Z", at=@At("HEAD"), cancellable = true)
-    void _shouldShowParticles(CallbackInfoReturnable<Boolean> cir) {
-        int _1 = StatusEffect.getRawId(this.getEffectType());
-        int _2 = StatusEffect.getRawId(Herbiary.EFFECT_BLEED);
-        if (_1 == _2){
-            this.showParticles = false;
-            cir.setReturnValue(false);
-        }
-        cir.setReturnValue(this.showParticles);
-        cir.cancel();
-    }
+//    @Inject(method = "shouldShowParticles()Z", at=@At("HEAD"), cancellable = true)
+//    void _shouldShowParticles(CallbackInfoReturnable<Boolean> cir) {
+//        int _1 = StatusEffect.getRawId(this.getEffectType());
+//        int _2 = StatusEffect.getRawId(Herbiary.EFFECT_BLEED);
+//        if (_1 == _2){
+//            this.showParticles = false;
+//            cir.setReturnValue(false);
+//        }
+//        cir.setReturnValue(this.showParticles);
+//        cir.cancel();
+//    }
 };

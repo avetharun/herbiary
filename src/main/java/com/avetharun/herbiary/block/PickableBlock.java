@@ -1,6 +1,7 @@
 package com.avetharun.herbiary.block;
 
 import com.avetharun.herbiary.Herbiary;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -40,6 +41,11 @@ public class PickableBlock extends PlantBlock implements Fertilizable {
         this.OnPicked = onPicked;
         this.setDefaultState(this.stateManager.getDefaultState().with(AGE, 0));
     }
+
+    public PickableBlock(Settings settings) {
+        super(settings);
+    }
+
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(AGE);
     }
@@ -69,12 +75,17 @@ public class PickableBlock extends PlantBlock implements Fertilizable {
     }
 
     @Override
+    protected MapCodec<? extends PlantBlock> getCodec() {
+        return PlantBlock.createCodec(PickableBlock::new);
+    }
+
+    @Override
     protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
         return floor.isIn(Herbiary.FARMLAND) || super.canPlantOnTop(floor, world, pos);
     }
 
     @Override
-    public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state, boolean isClient) {
+    public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state) {
         return true;
     }
     protected static final VoxelShape SHAPE_DEFAULT = Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 13.0, 14.0);

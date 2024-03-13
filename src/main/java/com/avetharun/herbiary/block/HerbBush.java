@@ -23,7 +23,17 @@ public class HerbBush extends PickableBlock{
     public static BooleanProperty HAS_NEIGHBOR = Properties.ATTACHED;
     @Override
     public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-        return world.getBlockState(pos.down()).isOf(this) || world.getBlockState(pos.down()).isIn(BlockTags.DIRT) || world.getBlockState(pos.down()).isIn(Herbiary.FARMLAND);
+        boolean bl1 = world.getBlockState(pos.down()).isIn(BlockTags.DIRT) || world.getBlockState(pos.down()).isIn(Herbiary.FARMLAND);
+        for (int x = pos.getX()-1; x <= pos.getX()+1 && !bl1; x++) {
+            for (int y = pos.getY()-1; y <= pos.getY()+1 && !bl1; y++) {
+                for (int z = pos.getZ()-1; z <= pos.getZ()+1 && !bl1; z++) {
+                    BlockPos p = new BlockPos(x,y,z);
+                    bl1 = world.getBlockState(p).isOf(this);
+                }
+            }
+        }
+
+        return bl1 && canPlantOnTop(world.getBlockState(pos.down()), world, pos);
     }
 
     @Override
@@ -42,6 +52,6 @@ public class HerbBush extends PickableBlock{
     }
     @Override
     protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-        return floor.isOf(this) || super.canPlantOnTop(floor, world, pos) || floor.isIn(Herbiary.FARMLAND);
+        return floor.isOf(this) || super.canPlantOnTop(floor, world, pos);
     }
 }

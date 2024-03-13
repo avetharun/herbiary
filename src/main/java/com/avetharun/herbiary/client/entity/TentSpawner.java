@@ -37,13 +37,13 @@ public class TentSpawner extends Item {
         BlockPos[] surroundingPos = {blockPos.north(), blockPos.east(), blockPos.south(), blockPos.west()};
         // get the positions of the blocks surrounding the block above the clicked block
         if (alib.getEntitiesOfTypeInRange(world, blockPos, 10, ModEntityTypes.TENT_ENTITY_TYPE).stream().findAny().isPresent()) {
-            SystemToast.show(MinecraftClient.getInstance().getToastManager(), SystemToast.Type.TUTORIAL_HINT, Text.of("There is another tent too close to this!"), Text.of("Try to find an area that is clear.") );
+            SystemToast.show(MinecraftClient.getInstance().getToastManager(), SystemToast.Type.PERIODIC_NOTIFICATION, Text.of("There is another tent too close to this!"), Text.of("Try to find an area that is clear.") );
             return ActionResult.PASS;
         }
         for (BlockPos pos : surroundingPos) {
             if (!world.getBlockState(pos.down()).isFullCube(world, pos.down())) {
                 if (world.isClient) {
-                    SystemToast.show(MinecraftClient.getInstance().getToastManager(), SystemToast.Type.TUTORIAL_HINT, Text.of("The tent needs to be on the ground!"), Text.of("Try to find an area that is clear."));
+                    SystemToast.show(MinecraftClient.getInstance().getToastManager(), SystemToast.Type.PERIODIC_NOTIFICATION, Text.of("The tent needs to be on the ground!"), Text.of("Try to find an area that is clear."));
                     world.addParticle(ParticleTypes.COMPOSTER, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0, 0);
                 }
                 return ActionResult.PASS;
@@ -52,7 +52,7 @@ public class TentSpawner extends Item {
             for (BlockPos pos2 : surroundingPos2) {
                 if (!world.getBlockState(pos).isIn(BlockTags.REPLACEABLE) && !world.getBlockState(pos).isAir()) {
                     if (world.isClient) {
-                        SystemToast.show(MinecraftClient.getInstance().getToastManager(), SystemToast.Type.TUTORIAL_HINT, Text.of("You cannot place this- there are blocks in the way!"), Text.of("Try to find an area that is clear."));
+                        SystemToast.show(MinecraftClient.getInstance().getToastManager(), SystemToast.Type.PERIODIC_NOTIFICATION, Text.of("You cannot place this- there are blocks in the way!"), Text.of("Try to find an area that is clear."));
                         world.addParticle(ParticleTypes.COMPOSTER, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0, 0);
                     }
                     return ActionResult.PASS;

@@ -1,6 +1,10 @@
 package com.avetharun.herbiary.hUtil;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -9,6 +13,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.AbstractNbtNumber;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -26,6 +34,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.poi.PointOfInterestType;
 import net.minecraft.world.poi.PointOfInterestTypes;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -39,7 +48,25 @@ import java.util.zip.Adler32;
 import java.util.zip.CRC32;
 
 public class alib {
+    // Class to automatically create an Entity Part (Similar to how an Ender Dragon does it)
+    public static abstract class EntityPart<T extends Entity> extends Entity {
+        public EntityPart(EntityType<?> type, T parent, World world) {
+            super(type, world);
+            this.parent = parent;
+        }
+        public T parent;
+        @Override
+        public boolean isPartOf(Entity entity) {
+            return entity == this || entity == parent;
+        }
 
+        @MustBeInvokedByOverriders
+        @Override
+        public void tick() {
+            super.tick();
+            if (this.parent == null) {this.discard();}
+        }
+    }
     public static PointOfInterestType registerPOIType(RegistryKey<PointOfInterestType> key, Set<BlockState> states, int ticketCount, int searchDistance) {
         PointOfInterestType pointOfInterestType = new PointOfInterestType(states, ticketCount, searchDistance);
         Registry.register(Registries.POINT_OF_INTEREST_TYPE, key, pointOfInterestType);
@@ -105,6 +132,83 @@ public class alib {
             throw new RuntimeException(e);
         }
     }
+
+    // Checks if left is present and values equal in right.
+    public static boolean checkNBTEquals(NbtCompound left, NbtCompound right) {
+        if (left.getSize() == right.getSize() && left.getSize() == 0) {return true;}
+        boolean bl = true;
+        for (String key : left.getKeys()) {
+            if (!bl || !right.contains(key)) {return false;}
+            NbtElement e_L = left.get(key);
+            NbtElement e_R = right.get(key);
+            int elem_t = left.getType(key);
+            if (right.getType(key) != elem_t) {
+                return false;
+            }
+            if (left.get(key) instanceof NbtList lL && right.get(key) instanceof NbtList rL) {
+                if (lL.size() != rL.size()) {return false;}
+                int i = 0;
+                for (NbtElement e : lL.subList(0, lL.size())) {
+                    if (!e.asString().contentEquals(rL.get(i).asString())){
+                        return false;
+                    }
+                    i++;
+                }
+            }
+
+            if (e_L instanceof AbstractNbtNumber numL && e_R instanceof AbstractNbtNumber numR) {
+                switch (elem_t) {
+                    case NbtType.INT -> bl = numL.intValue() == numR.intValue();
+                    case NbtType.SHORT -> bl = numL.shortValue() == numR.shortValue();
+                    case NbtType.BYTE -> bl = numL.byteValue() == numR.byteValue();
+                    case NbtType.FLOAT -> bl = numL.floatValue() == numR.floatValue();
+                    case NbtType.DOUBLE -> bl = numL.doubleValue() == numR.doubleValue();
+                    case NbtType.LONG -> bl = numL.longValue() == numR.longValue();
+                }
+            }
+            switch (elem_t) {
+                case NbtType.COMPOUND -> bl = checkNBTEquals(left.getCompound(key), right.getCompound(key));
+                case NbtType.STRING -> bl = e_L.asString().contentEquals(e_R.asString());
+            }
+        }
+        return bl;
+    }
+
+    public static NbtCompound json2NBT(JsonObject jsonObject) {
+        NbtCompound nbtCompound = new NbtCompound();
+
+        for (var entry : jsonObject.entrySet()) {
+            String key = entry.getKey();
+            JsonElement jsonElement = entry.getValue();
+
+            if (jsonElement.isJsonPrimitive()) {
+                JsonPrimitive primitive = jsonElement.getAsJsonPrimitive();
+                if (primitive.isNumber()) {
+                    if (primitive.getAsNumber() instanceof Integer i) {
+                        nbtCompound.putInt(key, i);
+                    } else if (primitive.getAsNumber() instanceof Float i) {
+                        nbtCompound.putFloat(key, i);
+                    } else if (primitive.getAsNumber() instanceof Double i) {
+                        nbtCompound.putDouble(key, i);
+                    } else if (primitive.getAsNumber() instanceof Short i) {
+                        nbtCompound.putShort(key, i);
+                    }
+                } else if (primitive.isBoolean()) {
+                    nbtCompound.putBoolean(key, primitive.getAsBoolean());
+                } else if (primitive.isString()) {
+                    nbtCompound.putString(key, primitive.getAsString());
+                }
+                // Add more conversions as needed for other primitive types
+            } else if (jsonElement.isJsonObject() || jsonElement.isJsonArray()) {
+                NbtCompound nestedCompound = json2NBT(jsonElement.getAsJsonObject());
+                nbtCompound.put(key, nestedCompound);
+            }
+            // Add more conversions as needed for other types like arrays or nested objects
+        }
+
+        return nbtCompound;
+    }
+
     public static <T> void runMixinMethod(T mixinType, String methodName, Object... args) {
         try {
             Class<?>[] argTypes = new Class<?>[args.length];

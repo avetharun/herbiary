@@ -49,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.example.entity.BatEntity;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationState;
@@ -72,7 +73,6 @@ public class TentEntity extends Entity implements GeoEntity, Attackable {
         public TentStorageEntity(EntityType<?> type, World world, TentEntity baseEntity) {
             super(type, world);
             this.mainEntity = baseEntity;
-            baseEntity.storage = this;
         }
         public void subTick() {
             // Update the entity's position to follow the main entity's position at the offset
@@ -105,24 +105,22 @@ public class TentEntity extends Entity implements GeoEntity, Attackable {
         }
     }
     public TentEntity(EntityType<? extends Entity> type, World world) {
-        super( type, world);
-        this.getWorld().spawnEntity(new TentStorageEntity(ModEntityTypes.TENT_STORAGE_ENTITY_ENTITY_TYPE, world, this));
+        super(type, world);
+//        this.getWorld().spawnEntity(new TentStorageEntity(ModEntityTypes.TENT_STORAGE_ENTITY_ENTITY_TYPE, world, this));
     }
 
     public TentEntity(World world, double x, double y, double z, Direction direction) {
-        this(ModEntityTypes.TENT_ENTITY_TYPE, world);
+        super(ModEntityTypes.TENT_ENTITY_TYPE, world);
         this.setPosition(x, y, z);
         this.setFacing(direction);
-        this.getWorld().spawnEntity(new TentStorageEntity(ModEntityTypes.TENT_STORAGE_ENTITY_ENTITY_TYPE, world, this));
+//        this.getWorld().spawnEntity(new TentStorageEntity(ModEntityTypes.TENT_STORAGE_ENTITY_ENTITY_TYPE, world, this));
     }
     private static final TrackedData<ItemStack> CURRENT_STORAGE = DataTracker.registerData(TentEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
     private static final TrackedData<Boolean> HAS_BED = DataTracker.registerData(TentEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> HAS_TABLE = DataTracker.registerData(TentEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Direction> DIRECTION = DataTracker.registerData(TentEntity.class, TrackedDataHandlerRegistry.FACING);
-    public TentStorageEntity storage;
     @Override
     public void remove(RemovalReason reason) {
-        storage.remove(reason);
         super.remove(reason);
     }
 
@@ -142,8 +140,6 @@ public class TentEntity extends Entity implements GeoEntity, Attackable {
     @Override
     public void tick() {
         super.tick();
-        storage.offset = storageBoxHitboxOffset.offset(this.dataTracker.get(DIRECTION), 0.5f).add(0,0.25f,0);
-        storage.subTick();
     }
 
     public void kill() {
@@ -215,7 +211,7 @@ public class TentEntity extends Entity implements GeoEntity, Attackable {
         this.dataTracker.set(DIRECTION, direction);
     }
     public Direction getFacing() {return this.dataTracker.get(DIRECTION);}
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;

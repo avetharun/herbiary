@@ -12,6 +12,7 @@ import net.minecraft.util.Hand;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -31,11 +32,12 @@ public abstract class WolfEntityMixin {
         e.getWorld().spawnEntity(new ItemEntity(e.getWorld(),e.getX(), e.getY(), e.getZ(), ModItems.WOLF_HIDE.getDefaultStack()));
     }
 
-    @Inject(method="interactMob", at=@At("HEAD"), cancellable = true)
+    @Inject(method="interactMob", at=@At("HEAD"))
     public void interactMob(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
        cir.cancel();
     }
-    int ticksSinceLastGrowl = 0;
+    @Unique
+    int herbiary$ticksSinceLastGrowl = 0;
     @Inject(method="tick", at=@At("TAIL"))
     public void tickMethod(CallbackInfo ci) {
         WolfEntity e = (WolfEntity) (Object)this;
@@ -44,9 +46,9 @@ public abstract class WolfEntityMixin {
             return;
         } else {
             float d = (float) p.squaredDistanceTo(e);
-            if (ticksSinceLastGrowl > 60 + e.getRandom().nextInt(20) && e.getAngryAt() == null) {
+            if (herbiary$ticksSinceLastGrowl > 60 + e.getRandom().nextInt(20) && e.getAngryAt() == null) {
                 e.playSound(SoundEvents.ENTITY_WOLF_GROWL, 0.5f, 1f);
-                ticksSinceLastGrowl = 0;
+                herbiary$ticksSinceLastGrowl = 0;
             }
             if (d < 8 * 8) {
                 Objects.requireNonNull(e.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED)).setBaseValue(.5f);
@@ -57,6 +59,6 @@ public abstract class WolfEntityMixin {
             e.setAngryAt(null);
         }
         if (e.getAngryAt() == null) {Objects.requireNonNull(e.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED)).setBaseValue(0.30000001192092896f);}
-        ticksSinceLastGrowl++;
+        herbiary$ticksSinceLastGrowl++;
     }
 }

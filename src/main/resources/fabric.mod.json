@@ -3,7 +3,7 @@
   "id": "herbiary",
   "version": "${version}",
   "name": "Herbiary",
-  "description": "A mod that creates a more survival themed Minecraft. Adds herbs, new weapons, mobs, all in the theme of Vanilla Minecraft.",
+  "description": "A mod that creates a more survival themed Minecraft. Adds herbs, new weapons, mobs, all in the theme of Vanilla Minecraft.\nRemoves fantasy elements from the base game in favor of a more realistic survival experience.",
   "authors": [
     "Avetharun"
   ],
@@ -14,10 +14,12 @@
   "accessWidener" : "herbiary.accesswidener",
   "entrypoints": {
     "client": [
-      "com.avetharun.herbiary.client.HerbiaryClient"
+      "com.avetharun.herbiary.client.HerbiaryClient",
+      "com.avetharun.dpu.client.DatapackUtilsClient"
     ],
     "main": [
-      "com.avetharun.herbiary.Herbiary"
+      "com.avetharun.herbiary.Herbiary",
+      "com.avetharun.dpu.DatapackUtils"
     ]
   },
   "mixins": [
@@ -26,8 +28,7 @@
   "depends": {
     "fabricloader": ">=0.14.9",
     "fabric": "*",
-    "minecraft": ">=1.19.2",
-    "seasons": "*"
+    "minecraft": ">=1.19.2"
   },
   "recommends": {
     "modmenu-badges-lib": "*",
@@ -42,7 +43,7 @@
       "parent": {
         "id": "al_herbiary",
         "name": "Herbiary",
-        "description": "Mod which overhauls Minecraft's vanilla survival experience entirely",
+        "description": "A mod that creates a more survival themed Minecraft. Adds herbs, new weapons, mobs, all in the theme of Vanilla Minecraft.\nRemoves fantasy elements from the base game in favor of a more realistic survival experience.",
         "icon": "assets/al_herbiary/icon.png"
       },
       "update_checker": true

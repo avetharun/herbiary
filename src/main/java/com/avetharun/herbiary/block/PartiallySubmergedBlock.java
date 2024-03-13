@@ -2,6 +2,7 @@ package com.avetharun.herbiary.block;
 
 import net.minecraft.block.*;
 import net.minecraft.block.enums.DoubleBlockHalf;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -14,6 +15,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
+import org.jetbrains.annotations.Nullable;
 
 public class PartiallySubmergedBlock extends TallPlantBlock implements Waterloggable {
     public static final EnumProperty<DoubleBlockHalf> HALF;
@@ -51,7 +53,7 @@ public class PartiallySubmergedBlock extends TallPlantBlock implements Waterlogg
     }
 
     @Override
-    public boolean canFillWithFluid(BlockView world, BlockPos pos, BlockState state, Fluid fluid) {
+    public boolean canFillWithFluid(@Nullable PlayerEntity player, BlockView world, BlockPos pos, BlockState state, Fluid fluid) {
         return (!(Boolean)state.get(Properties.WATERLOGGED) && fluid == Fluids.WATER) && state.get(HALF) == DoubleBlockHalf.UPPER;
     }
     @Override

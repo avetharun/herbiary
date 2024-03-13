@@ -1,6 +1,5 @@
 package com.avetharun.herbiary.recipes;
 
-import com.avetharun.herbiary.screens.CampfirePotScreenHandler;
 import com.avetharun.herbiary.screens.WorkstationScreenHandler;
 import net.minecraft.recipe.*;
 import net.minecraft.registry.Registries;
@@ -22,15 +21,8 @@ public class RecipesUtil{
             return "workstation";
         }
     });
-    public static final RecipeType<ShapelessPotRecipe> POT_RECIPE_TYPE= Registry.register(Registries.RECIPE_TYPE, POT_ID, new RecipeType<ShapelessPotRecipe>() {
-        public String toString() {
-            return "pot";
-        }
-    });
     public static ScreenHandlerType<WorkstationScreenHandler> WORKSTATION_SCREEN_HANDLER;
-    public static ScreenHandlerType<CampfirePotScreenHandler> POT_SCREEN_HANDLER;
     public static final WorkstationRecipe.MortarRecipeSerializer<WorkstationRecipe> MORTAR_SERIALIZER = Registry.register(Registries.RECIPE_SERIALIZER, MORTAR_ID, new WorkstationRecipe.MortarRecipeSerializer<>(WorkstationRecipe::new));
-    public static final ShapelessPotRecipe.PotCookingRecipeJsonProvider.Serializer<ShapelessPotRecipe> POT_SERIALIZER = Registry.register(Registries.RECIPE_SERIALIZER, POT_ID, new ShapelessPotRecipe.PotCookingRecipeJsonProvider.Serializer<>(ShapelessPotRecipe::create));
 
 
     static <S extends RecipeSerializer<T>, T extends Recipe<?>> S register(String id, S serializer) {

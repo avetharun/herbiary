@@ -28,21 +28,6 @@ public class RottingLogBlockInstancer extends PillarBlock {
         this.Growables = growables;
     }
 
-    PlayerEntity breaker;
-    @Override
-    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        if (player.isCreative()) {
-            breaker = player;
-            super.onBreak(world, pos, state, player);
-            return;
-        }
-        int drop_count = world.getRandom().nextInt(3);
-        // always drop at LEAST 2 sticks. Chance of dropping 3 more.
-        for (int i = 0; i < drop_count + 2; i++) {
-            world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), Items.STICK.getDefaultStack()));
-        }
-        super.onBreak(world, pos, state, player);
-    }
 
     @Override
     public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
@@ -57,16 +42,8 @@ public class RottingLogBlockInstancer extends PillarBlock {
 
     @Override
     public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (breaker != null && breaker.isCreative()) {
-            return; // don't break unless not creative. This is to allow building with this, while not having it break in a chain.
-        }
         if (world.getBlockState(sourcePos).isAir() && world.getBlockState(pos.down()).isAir()) {
             world.breakBlock(pos, false);
-            int drop_count = world.getRandom().nextInt(3);
-            // always drop at LEAST 2 sticks. Chance of dropping 3 more.
-            for (int i = 0; i < drop_count + 2; i++) {
-                world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), Items.STICK.getDefaultStack()));
-            }
         }
         super.neighborUpdate(state, world, pos, sourceBlock, sourcePos, notify);
     }

@@ -2,6 +2,7 @@ package com.avetharun.herbiary.block;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.*;
 import net.minecraft.entity.passive.SalmonEntity;
 import net.minecraft.fluid.Fluids;
@@ -32,6 +33,11 @@ public class RotMossBlock extends MultifaceGrowthBlock {
         super(settings);
         this.gC = new GROWER_CHECKER_NULL(this);
         this.gR = new LichenGrower(this.gC);
+    }
+
+    @Override
+    protected MapCodec<? extends MultifaceGrowthBlock> getCodec() {
+        return MultifaceGrowthBlock.createCodec(RotMossBlock::new);
     }
 
     private static class GROWER_CHECKER_NULL implements  LichenGrower.GrowChecker {

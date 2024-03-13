@@ -21,7 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-public class SiftableBlock extends FallingBlock{
+public class SiftableBlock extends Block{
     static int lastUseTick = 0;
     static int GENERATION_DELAY_TICKS = 40;
 
@@ -58,18 +58,14 @@ public class SiftableBlock extends FallingBlock{
     }
 
     public static ActionResult onUseExt(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        alib.setMixinField(player, "isSifting", true);
+//        alib.setMixinField(player, "isSifting", true);
         if (!world.isClient) {
             if (canGenerateLoot(state,world,pos)) {
                 LootTable lootTable = SiftableBlock.generateLootTable(world, state.getBlock());
                 lootTable.generateLoot(
-                        new LootContext.Builder(new LootContextParameterSet.Builder((ServerWorld) world).add(LootContextParameters.BLOCK_STATE, state).build(LootContextTypes.BLOCK)).build(null),
+                        new LootContext.Builder(new LootContextParameterSet.Builder((ServerWorld) world).add(LootContextParameters.BLOCK_STATE, state).add(LootContextParameters.TOOL, player.getStackInHand(hand)).add(LootContextParameters.ORIGIN, hit.getPos()).build(LootContextTypes.BLOCK)).build(null),
                         itemStack -> {
-                            var _pos = pos.offset(hit.getSide()).toCenterPos();
-                            BlockState spawnerBlock;
-                            int off = 0;
-                            // Wait until we find a free block to spawn on
-                            while ((spawnerBlock = world.getBlockState(pos.offset(hit.getSide(), off))).isSolid()) {}
+                            var _pos = pos.toCenterPos().offset(hit.getSide(),1);
                             world.spawnEntity(new ItemEntity(world, _pos.x, _pos.y, _pos.z, itemStack));
                         }
                 );

@@ -3,25 +3,21 @@ package com.avetharun.herbiary;
 import com.avetharun.herbiary.Items.FlintIgniter;
 import com.avetharun.herbiary.Items.UnlockableNamedItem;
 import com.avetharun.herbiary.command.LearnCommand;
-import com.avetharun.herbiary.entity.spawner.OwlSpawner;
-import com.avetharun.herbiary.hUtil.HerbDescriptor;
-import com.avetharun.herbiary.hUtil.ModRegistries;
+import com.avetharun.herbiary.hUtil.*;
 import com.avetharun.herbiary.hUtil.ModStatusEffects.Bleed;
 import com.avetharun.herbiary.entity.ModEntityTypes;
-import com.avetharun.herbiary.hUtil.Season;
-import com.avetharun.herbiary.hUtil.alib;
 import com.avetharun.herbiary.packet.FlintIgniterIgnitePacket;
 import com.avetharun.herbiary.packet.HerbiaryBlockStateInitPacket;
 import com.avetharun.herbiary.packet.SwitchArrowTypePacket;
 import com.avetharun.herbiary.packet.UnlockItemNamePacket;
 import com.avetharun.herbiary.recipes.RecipesUtil;
 import com.avetharun.herbiary.screens.BackpackScreenHandler;
-import com.avetharun.herbiary.screens.CampfirePotScreenHandler;
 import com.avetharun.herbiary.screens.WorkstationScreenHandler;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.feintha.regedit.RegistryEditEvent;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -33,9 +29,11 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.StonecutterBlock;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.*;
@@ -46,6 +44,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.BiomeTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.featuretoggle.FeatureFlag;
 import net.minecraft.resource.featuretoggle.FeatureFlags;
@@ -64,21 +63,18 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.poi.PointOfInterestType;
-import vazkii.patchouli.common.book.Book;
-import vazkii.patchouli.common.book.BookRegistry;
-import vazkii.patchouli.fabric.xplat.FabricXplatModContainer;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Herbiary implements ModInitializer {
     public static RegistryKey<Registry<HerbDescriptor>> HERB_DESCRIPTOR_KEY;
     public static Registry<HerbDescriptor> HERB_DESCRIPTORS;
-    public static HerbDescriptor EMPTY_OR_UNKNOWN_DESCRIPTOR = HerbDescriptor.Builder.create()
+    public static HerbDescriptor EMPTY_OR_UNKNOWN_DESCRIPTOR= HerbDescriptor.Builder.create()
             .name("unknown")
             .data("{\"text\":\"You haven't found this herb yet.\"}")
-            .build();
+            .build();;
     public static List<Block> AllowedHerbiaryBreakables = new ArrayList<>();
     public static final RegistryKey<PointOfInterestType> POI_NEST_KEY = RegistryKey.of(RegistryKeys.POINT_OF_INTEREST_TYPE, new Identifier("nest"));
     public static final PointOfInterestType POI_NEST = alib.registerPOIType(POI_NEST_KEY, alib.getStatesOfBlock(ModItems.BIRD_NEST_BLOCK.getLeft()), 1, 1);
@@ -87,54 +83,48 @@ public class Herbiary implements ModInitializer {
         sendAllPlayersBreakables(minecraftServer.getPlayerManager());
     }
     public static final GameRules.Key<GameRules.BooleanRule> ALLOW_VANILLA_RECIPES_UNLOCK =
-            GameRuleRegistry.register("allowVanillaRecipesUnlock", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true));
+            GameRuleRegistry.register("allowVanillaRecipesUnlock", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false));
     public static final GameRules.Key<GameRules.BooleanRule> ALLOW_HERB_PLACEMENTS =
-            GameRuleRegistry.register("allowHerbPlacements", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true,
+            GameRuleRegistry.register("allowHerbPlacements", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false,
                     ((minecraftServer, booleanRule) -> {
                         updateGameRules(minecraftServer);
                     }
             )));
 
     public static final GameRules.Key<GameRules.BooleanRule> ALLOW_VANILLA_BLOCK_BREAKING =
-            GameRuleRegistry.register("allowVanillaBlockBreaking", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true,
+            GameRuleRegistry.register("allowVanillaBlockBreaking", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false,
                     ((minecraftServer, booleanRule) -> {
                         updateGameRules(minecraftServer);
                     }
             )));
-    public static final GameRules.Key<GameRules.BooleanRule> ALLOW_STONE_MINING = GameRuleRegistry.register("allowMiningStoneLike", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true));
+    public static final GameRules.Key<GameRules.BooleanRule> ALLOW_VANILLA_MOB_SPAWNING = GameRuleRegistry.register("allowVanillaMobSpawning", GameRules.Category.SPAWNING, GameRuleFactory.createBooleanRule(false));
     public static final GameRules.Key<GameRules.BooleanRule> ALLOW_VANILLA_RECIPES_CRAFT =
-            GameRuleRegistry.register("allowVanillaRecipesCraft", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true));
+            GameRuleRegistry.register("allowVanillaRecipesCraft", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false));
     public static String MOD_ID = "al_herbiary";
     public static Item OWL_SPAWN_EGG;
     public static Item MOUSE_SPAWN_EGG;
     public static final StatusEffect EFFECT_BLEED = new Bleed();
     public static int SeasonLength = 24/*days*/;
     public static final int DayLength = 24000;
+    public static double clientRuntime = 0;
     public static Season getCurrentSeasonWorld(World world) {
         int worldTime = Math.toIntExact(world.getTimeOfDay()) / DayLength;
         int seasonTime = (worldTime / SeasonLength);
         return CURRENT_SEASON = Season.values()[seasonTime % 4];
     }
+//    private static Item overrideItem(Item toOverride, Item newItem){
+//        return Registry.register(Registries.ITEM, Registries.ITEM.getRawId(toOverride), Registries.ITEM.getId(toOverride).getPath(), newItem);
+//    }
+//
+//    private static Block overrideBlock(Block toOverride, Block newBlock){
+//        BlockItem newBlockItem = new BlockItem(newBlock, new FabricItemSettings());
+//        overrideItem(toOverride.asItem(), newBlockItem);
+//        return Registry.register(Registries.BLOCK, Registries.BLOCK.getRawId(toOverride), Registries.BLOCK.getId(toOverride).getPath(), newBlock);
+//    }
     public static Season CURRENT_SEASON = Season.SPRING;
     public static Identifier HERBIARY_FIELD_GUIDE_BOOK_ID = new Identifier("al_herbiary", "field_guide");
-    private static final String HERBIARY_FIELD_GUIDE_BOOK_JSON = """
-            {
-              "name": "Field Guide",
-              "landing_text": "A guide you wrote which has various plants and animals you have found",
-              "version": 0,
-              "use_resource_pack": true,
-              "model":"al_herbiary:herb_book",
-              "creative_tab":"tools_and_utilities",
-              "subtitle":"",
-              "show_progress":false,
-              "book_texture":"al_herbiary:textures/gui/book/field_guide_book_background.png"
-              
-            }
-            """;
-    public static Book HERBIARY_FIELD_GUIDE_PATCHOULI_BOOK;
 
     public static Identifier BACKPACK_UPDATE_PACKET_ID = new Identifier("al_herbiary", "backpack_update");
-
     public static Identifier IGNITER_IGNITE_PACKET_ID = new Identifier("al_herbiary", "c2s_igniter_ignited");
     public static Identifier SET_ARROW_TYPE_PACKET_ID = new Identifier("al_herbiary", "c2s_set_bow_type");
     public static Identifier HERBIARY_SYNC_PACKET_ID = new Identifier("al_herbiary", "sync");
@@ -163,7 +153,7 @@ public class Herbiary implements ModInitializer {
         });
         p.allow_vanilla_breaking = server.getGameRules().getBoolean(ALLOW_VANILLA_BLOCK_BREAKING);
         p.allow_herb_placement = server.getGameRules().getBoolean(ALLOW_HERB_PLACEMENTS);
-        p.allow_mining_ores_and_stone = server.getGameRules().getBoolean(ALLOW_STONE_MINING);
+        p.allow_mining_ores_and_stone = true;
 
         PacketByteBuf out = PacketByteBufs.create();
         p.write(out);
@@ -181,25 +171,19 @@ public class Herbiary implements ModInitializer {
         var out = gameRuleTick(new HerbiaryBlockStateInitPacket(), player.getServer());
         ServerPlayNetworking.send(player, Herbiary.HERBIARY_SYNC_PACKET_ID, out);
     }
+    public static final TagKey<Item> ELYTRI = TagKey.of(RegistryKeys.ITEM, new Identifier("c", "elytra"));
     public static DefaultParticleType FLINT_SPARK = FabricParticleTypes.simple();
     public static DefaultParticleType FLINT_SPARK_SMOKE = FabricParticleTypes.simple();
-//    public static final RegistryKey<WorldPreset> SURVIVAL_PRESET_KEY = RegistryKey.of(RegistryKeys.WORLD_PRESET, new Identifier("al_herbiary:survivalism"));
-//    public static final RegistryKey<DimensionType> SURVIVAL_DIMENSION_TYPE = RegistryKey.of(RegistryKeys.DIMENSION_TYPE, new Identifier("al_herbiary:survivalism"));
     public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access) {}
     @Override
     public void onInitialize() {
-        // Temporarially commented out for git push for williewilus
-//        HERBIARY_FIELD_GUIDE_PATCHOULI_BOOK = new Book((JsonObject) JsonParser.parseString(HERBIARY_FIELD_GUIDE_BOOK_JSON), new FabricXplatModContainer(FabricLoader.getInstance().getModContainer("herbiary").get()), HERBIARY_FIELD_GUIDE_BOOK_ID, true);
-//        BookRegistry.INSTANCE.books.put(new Identifier("al_herbiary", "field_guide"), HERBIARY_FIELD_GUIDE_PATCHOULI_BOOK);
+        RegistryEditEvent.EVENT.register(manipulator -> {
+            manipulator.Redirect(Registries.BLOCK, Blocks.STONE, new StonecutterBlock(FabricBlockSettings.copyOf(Blocks.BEDROCK)));
+        });
+        BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_FOREST), GenerationStep.Feature.VEGETAL_DECORATION, RegistryKey.of(RegistryKeys.PLACED_FEATURE, new Identifier("al_herbiary","blueberry_bush")));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             LearnCommand.register(dispatcher,registryAccess);
-            dispatcher.register(CommandManager.literal("patchouli_get_books").executes(context -> {
-                BookRegistry.INSTANCE.books.forEach((identifier, book) -> {
-                    System.out.println("?????");
-                    context.getSource().sendMessage(Text.of("id: " + identifier.toString()));
-                });
-                return 1;
-            }));
+
         });
         ModItems.registerModItemData();
         ModEntityTypes.InitializeModEntityTypes();
@@ -220,14 +204,9 @@ public class Herbiary implements ModInitializer {
         Registry.register(Registries.SOUND_EVENT, Herbiary.UNZIP_TENT_ID, Herbiary.UNZIP_TENT);
         Registry.register(Registries.SOUND_EVENT, Herbiary.FLINT_FAIL_ID, Herbiary.FLINT_FAIL);
         Registry.register(Registries.SOUND_EVENT, Herbiary.ROCK_STRIKE_ID, Herbiary.ROCK_STRIKE);
-        OwlSpawner owlSpawner = new OwlSpawner();
+
 
         RecipesUtil.WORKSTATION_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, RecipesUtil.MORTAR_ID, new ScreenHandlerType<>(WorkstationScreenHandler.Factory::create, FeatureSet.of(FeatureFlags.VANILLA)));
-
-
-        RecipesUtil.POT_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, RecipesUtil.POT_ID, new ScreenHandlerType<>(CampfirePotScreenHandler.Factory::create, FeatureSet.of(FeatureFlags.VANILLA)));
-        ModRegistries.registerCampfireScreen(new Identifier("campfire.al_herbiary.pot"), RecipesUtil.POT_SCREEN_HANDLER);
-
 
         BackpackScreenHandler.BACKPACK_SCREEN_HANDLER_TYPE = Registry.register(Registries.SCREEN_HANDLER, BackpackScreenHandler.SID, new ScreenHandlerType<>(BackpackScreenHandler::new, FeatureSet.of(FeatureFlags.VANILLA)));
 
@@ -257,11 +236,10 @@ public class Herbiary implements ModInitializer {
         ServerTickEvents.END_WORLD_TICK.register(world -> {
             // spawn owls
             getCurrentSeasonWorld(world);
-            owlSpawner.spawn(world, world.getDifficulty() != Difficulty.PEACEFUL, world.getServer().shouldSpawnAnimals());
         });
 
         HERB_DESCRIPTOR_KEY = RegistryKey.ofRegistry(new Identifier("herb_descriptor"));
-        HERB_DESCRIPTORS = FabricRegistryBuilder.createDefaulted(HerbDescriptor.class, new Identifier("herb_descriptors"), new Identifier("empty")).buildAndRegister();
+        HERB_DESCRIPTORS = FabricRegistryBuilder.createSimple(HerbDescriptor.class, new Identifier("herb_descriptors")).buildAndRegister();
         Registry.register(HERB_DESCRIPTORS, new Identifier("empty"), EMPTY_OR_UNKNOWN_DESCRIPTOR);
 
 
@@ -289,8 +267,6 @@ public class Herbiary implements ModInitializer {
         });
         Registry.register(Registries.PARTICLE_TYPE, new Identifier("al_herbiary", "flint_spark"), FLINT_SPARK);
         Registry.register(Registries.PARTICLE_TYPE, new Identifier("al_herbiary", "flint_smoke"), FLINT_SPARK_SMOKE);
-
-        Registry.register(ModRegistries.CAMPFIRE_SCREENS, new Identifier("al_herbiary", "campfire_pot"), new ModRegistries.CampfireScreenEntry(RecipesUtil.POT_SCREEN_HANDLER));
     }
     public static final FeatureFlag HERBIARY_FANTASY;
     public static final ItemGroup HERBIARY_FANTASY_BLOCKS = FabricItemGroup.builder()
@@ -329,6 +305,7 @@ public class Herbiary implements ModInitializer {
         UNZIP_TENT = SoundEvent.of(UNZIP_TENT_ID);
         ROCK_STRIKE_ID = new Identifier("al_herbiary:rock_strike");
         ROCK_STRIKE = SoundEvent.of(ROCK_STRIKE_ID);
+//        OVERRIDE_VANILLA_ITEM.put(new Identifier("minecraft:flint_and_steel"), );
     }
 
 }

@@ -27,6 +27,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.TridentItem;
 import net.minecraft.item.Vanishable;
+import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -61,6 +62,7 @@ public class SpearItem extends TridentItem implements Vanishable {
     }
 
     public Multimap<EntityAttribute, EntityAttributeModifier> getAttributeModifiers(EquipmentSlot slot) {
+
         return slot == EquipmentSlot.MAINHAND ? this.attributeModifiers : super.getAttributeModifiers(slot);
     }
     @Override

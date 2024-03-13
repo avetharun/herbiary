@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.2-SNAPSHOT'
+    id 'fabric-loom' version '1.5-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -38,6 +38,14 @@ repositories {
     maven { url 'https://maven.wispforest.io' }
     maven { url 'https://maven.blamejared.com' }
     maven { url = "https://maven.modmuss50.me/" }
+    maven {
+        name = 'GeckoLib'
+        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content {
+            includeGroupByRegex("software\\.bernie.*")
+            includeGroup("com.eliotlash.mclib")
+        }
+    }
 }
 
 dependencies {
@@ -49,18 +57,14 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     // Geckolib
-    modImplementation "maven.modrinth:geckolib:B4kTh670"
-    compileOnly "maven.modrinth:modmenu:zv46i3PW"
-    include modImplementation("maven.modrinth:dpu:9Mb3Nax3")
-    include modImplementation("maven.modrinth:jei:8nNvyvoj")
-    include modImplementation("maven.modrinth:fabric-seasons:dJtxMqxE")
+    include modImplementation('software.bernie.geckolib:geckolib-fabric-1.20.4:4.4.2')
+    compileOnly "maven.modrinth:modmenu:9.0.0"
     modImplementation "io.wispforest:owo-lib:${project.owo_version}"
     annotationProcessor "io.wispforest:owo-lib:${project.owo_version}"
     include "io.wispforest:owo-sentinel:${project.owo_version}"
     include implementation(files("lib/mixinextras-fabric-0.2.0-beta.8.jar"))
     include annotationProcessor(files("lib/mixinextras-fabric-0.2.0-beta.8.jar"))
-    include modImplementation("maven.modrinth:patchouli:PKvFvHeb")
-    include implementation("me.zeroeightsix:fiber:${project.fiber_version}")
+    include modImplementation(files("lib/regedit.jar"))
 //    modImplementation "vazkii.patchouli:Patchouli:1.20.1-80-FABRIC-SNAPSHOT"
 }
 

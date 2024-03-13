@@ -2,6 +2,7 @@ package com.avetharun.herbiary.block;
 
 import com.avetharun.herbiary.Herbiary;
 import com.avetharun.herbiary.entity.block.ToolrackBlockEntity;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ItemEntity;
@@ -65,6 +66,11 @@ public class ToolrackBlock extends BlockWithEntity {
     }
 
     @Override
+    protected MapCodec<? extends BlockWithEntity> getCodec() {
+        return BlockWithEntity.createCodec(ToolrackBlock::new);
+    }
+
+    @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext ctx) {
         Direction dir = state.get(FACING);
         return switch (dir) {
@@ -106,11 +112,12 @@ public class ToolrackBlock extends BlockWithEntity {
     }
 
     @Override
-    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        super.onBreak(world, pos, state, player);
+    public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
+        super.onBroken(world, pos, state);
+        if (world.isClient()) {return;}
         ToolrackBlockEntity e = (ToolrackBlockEntity)world.getBlockEntity(pos);
         assert e != null;
-        world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), e.HeldItem));
+        world.spawnEntity(new ItemEntity((World) world, pos.getX(), pos.getY(), pos.getZ(), e.HeldItem));
     }
 
     @Nullable

@@ -15,6 +15,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
 
@@ -57,28 +58,6 @@ public class CropBlockInstancer extends CropBlock {
         if (state.get(this.getAgeProperty()) < maxGrowth) {
             super.grow(world, random, pos, state);
         }
-    }
-
-    @Override
-    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        if (state.get(this.getAgeProperty()) >= maxGrowth) {
-            int seeds = minSeeds;
-            if (player.getActiveItem() != null && player.getActiveItem().hasEnchantments()) {
-                seeds = (int)((float)minSeeds * 1.25f) * EnchantmentHelper.getLevel(Enchantments.FORTUNE, player.getActiveItem());
-            }
-            // fuck off kg I want to code q^q
-            // sure
-            // (:
-            for (int i = 0; i < seeds; i++) {
-                world.spawnEntity(new ItemEntity(world,
-                        pos.getX(), pos.getY(), pos.getZ(),
-                        getSeedsItem().asItem().getDefaultStack(),
-                        world.random.nextFloat() % .2f,
-                        0.08f + world.random.nextFloat() % .2f,
-                        world.random.nextFloat() % .2f));
-            }
-        }
-        super.onBreak(world, pos, state, player);
     }
 
     @Override

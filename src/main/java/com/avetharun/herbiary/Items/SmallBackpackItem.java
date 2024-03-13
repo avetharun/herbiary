@@ -46,7 +46,7 @@ public class SmallBackpackItem extends Item {
                 @Override
                 public void onClose(PlayerEntity player) {
                     if (player instanceof ServerPlayerEntity) {
-                        saveInventoryToNbt(stack, this.stacks);
+                        saveInventoryToNbt(stack, this.heldStacks);
                     }
                     super.onClose(player);
                 }
@@ -62,7 +62,7 @@ public class SmallBackpackItem extends Item {
             player.openHandledScreen(createScreenHandlerFactory(world, stack, backpackInventory));
         if (!world.isClient()) {
             // Synchronize the inventory data with the client
-            saveInventoryToNbt(stack, backpackInventory.stacks);
+            saveInventoryToNbt(stack, backpackInventory.heldStacks);
         }
         return new TypedActionResult<>(ActionResult.SUCCESS, player.getStackInHand(hand));
     }

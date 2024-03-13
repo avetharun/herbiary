@@ -1,6 +1,7 @@
 package com.avetharun.herbiary.block;
 
 import com.avetharun.herbiary.Herbiary;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.*;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.registry.tag.BlockTags;
@@ -19,6 +20,12 @@ public class TreeMountedBlock extends HorizontalFacingBlock {
         super(settings);
         setDefaultState(this.stateManager.getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.NORTH));
     }
+
+    @Override
+    protected MapCodec<? extends HorizontalFacingBlock> getCodec() {
+        return HorizontalFacingBlock.createCodec(TreeMountedBlock::new);
+    }
+
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> stateManager) {
         stateManager.add(Properties.HORIZONTAL_FACING);

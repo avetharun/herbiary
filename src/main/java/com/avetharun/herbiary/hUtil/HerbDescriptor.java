@@ -12,20 +12,18 @@ import net.minecraft.util.Identifier;
 public class HerbDescriptor {
     public Identifier name;
     public String data;
-    public ItemStack stack = ModItems.UNKNOWN_HERB.getDefaultStack();
+    public ItemStack stack = ItemStack.EMPTY;
     // used by GUI only.
     public Slot slot;
     public boolean poison;
     public boolean isEdible;
     public ItemStack getBuiltStack() {
-        ItemStack  s = stack;
+        ItemStack s = stack;
         NbtCompound sc = s.getOrCreateNbt();
         NbtList lore = new NbtList();
         lore.add(NbtString.of(data));
         NbtCompound dc = new NbtCompound();
         dc.put("Lore", lore);
-        System.out.println(dc);
-        System.out.println(sc);
         sc.put("display", dc);
         return s;
     }
@@ -36,8 +34,8 @@ public class HerbDescriptor {
         }
         public Builder name(Identifier name) {impl_descriptor.name = name; return this;}
         public Builder name(String name) {impl_descriptor.name = new Identifier(name); return this;}
-        public Builder data(String data) {impl_descriptor.data = Text.Serializer.toJson(Text.of(data)); return this;}
-        public Builder data(Text data) {impl_descriptor.data = Text.Serializer.toJson(data); return this;}
+        public Builder data(String data) {impl_descriptor.data = Text.Serialization.toJsonString(Text.of(data)); return this;}
+        public Builder data(Text data) {impl_descriptor.data = Text.Serialization.toJsonString(data); return this;}
         public Builder stack(ItemStack stack) {impl_descriptor.stack = stack; return this;}
         public HerbDescriptor build() {return impl_descriptor;}
     }

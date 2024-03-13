@@ -1,12 +1,12 @@
 package com.avetharun.herbiary;
 
 import com.avetharun.herbiary.Enchants.fantasy.GracefulEnchant;
+import com.avetharun.herbiary.Enchants.fantasy.ZipwingEnchant;
 import com.avetharun.herbiary.Items.*;
 import com.avetharun.herbiary.Items.ItemEntities.HerbiarySpearItemEntity;
 import com.avetharun.herbiary.block.*;
 import com.avetharun.herbiary.client.entity.TentSpawner;
 import com.avetharun.herbiary.entity.block.BackpackBlockEntity;
-import com.avetharun.herbiary.entity.block.CampfirePotBlockEntity;
 import com.avetharun.herbiary.entity.block.FieldMouseBurrowBlockEntity;
 import com.avetharun.herbiary.entity.block.ToolrackBlockEntity;
 import com.avetharun.herbiary.hUtil.*;
@@ -20,7 +20,6 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.entity.*;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -32,10 +31,7 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,24 +57,24 @@ public class ModItems {
     public static final Item LONGBOW = registerItem("longbow", new BowItem(new Item.Settings().maxDamage(480)));
     // begin tools
 
-    public static final ModBlockItem IRON_SKILLET = registerBlockAsCreativeOnlyWithItem(new HorizontalFacingBlock(FabricBlockSettings.create()) {
-        public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-            builder.add(Properties.HORIZONTAL_FACING, Properties.LIT);
-        }
-    }, "iron_skillet", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
-
-    public static final ModBlockItem CERAMIC_SKILLET = registerBlockAsCreativeOnlyWithItem(new HorizontalFacingBlock(FabricBlockSettings.create()) {
-        public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-            builder.add(Properties.HORIZONTAL_FACING, Properties.LIT);
-        }
-    }, "ceramic_skillet", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
-
-
-    public static final ModBlockItem CAMPFIRE_POT = registerBlockAsCreativeOnlyWithItem(new HorizontalFacingBlock(FabricBlockSettings.create()) {
-        public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-            builder.add(Properties.HORIZONTAL_FACING, Properties.LIT);
-        }
-    }, "campfire_pot", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
+//    public static final ModBlockItem IRON_SKILLET = registerBlockAsCreativeOnlyWithItem(new HorizontalFacingBlock(FabricBlockSettings.create()) {
+//        public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+//            builder.add(Properties.HORIZONTAL_FACING, Properties.LIT);
+//        }
+//    }, "iron_skillet", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
+//
+//    public static final ModBlockItem CERAMIC_SKILLET = registerBlockAsCreativeOnlyWithItem(new HorizontalFacingBlock(FabricBlockSettings.create()) {
+//        public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+//            builder.add(Properties.HORIZONTAL_FACING, Properties.LIT);
+//        }
+//    }, "ceramic_skillet", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
+//
+//
+//    public static final ModBlockItem CAMPFIRE_POT = registerBlockAsCreativeOnlyWithItem(new HorizontalFacingBlock(FabricBlockSettings.create()) {
+//        public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+//            builder.add(Properties.HORIZONTAL_FACING, Properties.LIT);
+//        }
+//    }, "campfire_pot", ItemGroups.TOOLS, new FabricItemSettings().maxCount(1));
 
     public static final Item LEATHER_FLASK = registerItem("leather_flask", new FlaskItem(new Item.Settings().maxCount(1)), ItemGroups.TOOLS);
     public static final Item STONE_HATCHET = registerItem("stone_hatchet", new HatchetItem(ToolMaterials.STONE, 4, 1.8f, new Item.Settings().maxDamage(42)), ItemGroups.TOOLS);
@@ -88,7 +84,6 @@ public class ModItems {
     // begin items
     public static final Item WOLF_HIDE = registerItem("wolf_hide", new Item(new Item.Settings()), ItemGroups.INGREDIENTS);
     public static final Item CLOTH = registerItem("cloth", new Item(new Item.Settings()), ItemGroups.INGREDIENTS);
-    public static final Item UNKNOWN_HERB = registerItem("unknown_herb", new Item(new Item.Settings()));
     public static final Item BIRCH_BARK = registerItem("birch_bark", new Item(new FabricItemSettings()), ItemGroups.INGREDIENTS);
     public static final Item OAK_BARK = registerItem("oak_bark", new Item(new FabricItemSettings()), ItemGroups.INGREDIENTS);
     public static final Item SPRUCE_BARK = registerItem("spruce_bark", new Item(new FabricItemSettings()), ItemGroups.INGREDIENTS);
@@ -265,7 +260,6 @@ public class ModItems {
             ItemGroups.SEARCH);
     public static BlockEntityType<NestBlockEntity> BIRD_NEST_BLOCK_ENTITY;
     public static BlockEntityType<ToolrackBlockEntity> TOOLRACK_BLOCK_ENTITY;
-    public static BlockEntityType<CampfirePotBlockEntity> CAMPFIRE_POT_BLOCK_ENTITY;
     public static BlockEntityType<BackpackBlockEntity> BACKPACK_BLOCK_ENTITY;
     public static ModBlockItem FIELD_MOUSE_BURROW_BLOCK = registerExistingBlockWithItem(new FieldMouseBurrowBlock(FabricBlockSettings.create().noCollision().breakInstantly()), "field_mouse_burrow", ItemGroups.NATURAL);
     public static BlockEntityType<FieldMouseBurrowBlockEntity> FIELD_MOUSE_BURROW_BLOCK_ENTITY ;
@@ -316,6 +310,7 @@ public class ModItems {
 
     // begin fantasy
     public static final GracefulEnchant GRACEFUL_ENCHANTMENT = registerEnchant("graceful", new GracefulEnchant(Enchantment.Rarity.VERY_RARE));
+    public static final ZipwingEnchant ZIPWING_ENCHANTMENT = registerEnchant("zipwing", new ZipwingEnchant(Enchantment.Rarity.VERY_RARE));
 
 
 
@@ -457,9 +452,6 @@ public class ModItems {
     }
     private static Item registerItem(String name, Item i, RegistryKey<ItemGroup> group) {
         Item re_i = Registry.register(Registries.ITEM, new Identifier("al_herbiary", name), i);
-        ItemGroupEvents.modifyEntriesEvent(group).register(content -> {
-            content.add(re_i);
-        });
         return re_i;
     }
     public static void registerModItemData() {
@@ -554,11 +546,11 @@ public class ModItems {
                 new Identifier("al_herbiary", "toolrack_block_entity"),
                 FabricBlockEntityTypeBuilder.create(ToolrackBlockEntity::new, TOOLRACK_BLOCK.getLeft()).build()
         );
-        CAMPFIRE_POT_BLOCK_ENTITY = Registry.register(
-                Registries.BLOCK_ENTITY_TYPE,
-                new Identifier("al_herbiary", "campfire_pot_block_entity"),
-                FabricBlockEntityTypeBuilder.create(CampfirePotBlockEntity::new, CAMPFIRE_POT.getLeft()).build()
-        );
+//        CAMPFIRE_POT_BLOCK_ENTITY = Registry.register(
+//                Registries.BLOCK_ENTITY_TYPE,
+//                new Identifier("al_herbiary", "campfire_pot_block_entity"),
+//                FabricBlockEntityTypeBuilder.create(CampfirePotBlockEntity::new, CAMPFIRE_POT.getLeft()).build()
+//        );
         BACKPACK_BLOCK_ENTITY = Registry.register(
                 Registries.BLOCK_ENTITY_TYPE,
                 new Identifier("al_herbiary", "backpack"),
@@ -581,13 +573,14 @@ public class ModItems {
                 OIL_LAMP.getLeft(),
                 ROT_MOSS.getLeft(),
                 MINT_PLANT.getLeft(),
-                CAMPFIRE_POT.getLeft(),
+//                CAMPFIRE_POT.getLeft(),
                 SPRUCE_PLANTER.getLeft(),
                 SMALL_BACKPACK.getLeft(),
-                FIELD_MOUSE_BURROW_BLOCK.getLeft(),
-                CAMPFIRE_POT.getLeft(),
-                IRON_SKILLET.getLeft(),
-                CERAMIC_SKILLET.getLeft()
+                FIELD_MOUSE_BURROW_BLOCK.getLeft()
+//                ,
+//                CAMPFIRE_POT.getLeft(),
+//                IRON_SKILLET.getLeft(),
+//                CERAMIC_SKILLET.getLeft()
         );
 
         RecipesUtil.registerRecipeHandler();

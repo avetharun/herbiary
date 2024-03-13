@@ -50,40 +50,40 @@ public abstract class CraftingScreenHandlerMixin {
         cir.setReturnValue(o);
         cir.cancel();
     }
-    @Inject(at=@At("HEAD"), cancellable = true, method="matches")
-    void matchesInject(Recipe<RecipeInputInventory> recipe, CallbackInfoReturnable<Boolean> cir) {
-        if (this.player.getWorld().getGameRules().getBoolean(Herbiary.ALLOW_VANILLA_RECIPES_CRAFT)) {
-            cir.setReturnValue(recipe.matches(input, this.player.getWorld()));
-            cir.cancel();
-            return;
-        } else if (recipe.getId().getNamespace().equalsIgnoreCase("al_herbiary")) {
-            cir.setReturnValue(recipe.matches(this.input, this.player.getWorld()));
-            cir.cancel();
-            return;
-        }
-        cir.setReturnValue(false);
-        cir.cancel();
-    }
-    @Inject(method="updateResult", at=@At("HEAD"), cancellable = true)
-    private static void updateResult(ScreenHandler handler, World world, PlayerEntity player, RecipeInputInventory craftingInventory, CraftingResultInventory resultInventory, CallbackInfo ci) {
-        if (!world.isClient) {
-            ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity)player;
-            ItemStack itemStack = ItemStack.EMPTY;
-            Optional<CraftingRecipe> optional = world.getServer().getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftingInventory, world);
-            if (optional.isPresent()) {
-                CraftingRecipe craftingRecipe = (CraftingRecipe)optional.get();
-                if (craftingRecipe.getId().getNamespace().equalsIgnoreCase("al_herbiary") && !world.getGameRules().getBoolean(Herbiary.ALLOW_VANILLA_RECIPES_CRAFT)) {
-                    itemStack = craftingRecipe.craft(craftingInventory, world.getRegistryManager());
-                } else if (world.getGameRules().getBoolean(Herbiary.ALLOW_VANILLA_RECIPES_CRAFT) && resultInventory.shouldCraftRecipe(world, serverPlayerEntity, craftingRecipe)) {
-                    itemStack = craftingRecipe.craft(craftingInventory, world.getRegistryManager());
-                }
-            }
-
-            resultInventory.setStack(0, itemStack);
-            handler.setPreviousTrackedSlot(0, itemStack);
-            serverPlayerEntity.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, handler.nextRevision(), 0, itemStack));
-        }
-        ci.cancel();
-    }
+//    @Inject(at=@At("HEAD"), cancellable = true, method="matches")
+//    void matchesInject(Recipe<RecipeInputInventory> recipe, CallbackInfoReturnable<Boolean> cir) {
+//        if (this.player.getWorld().getGameRules().getBoolean(Herbiary.ALLOW_VANILLA_RECIPES_CRAFT)) {
+//            cir.setReturnValue(recipe.matches(input, this.player.getWorld()));
+//            cir.cancel();
+//            return;
+//        } else if (recipe.getId().getNamespace().equalsIgnoreCase("al_herbiary")) {
+//            cir.setReturnValue(recipe.matches(this.input, this.player.getWorld()));
+//            cir.cancel();
+//            return;
+//        }
+//        cir.setReturnValue(false);
+//        cir.cancel();
+//    }
+//    @Inject(method="updateResult", at=@At("HEAD"), cancellable = true)
+//    private static void updateResult(ScreenHandler handler, World world, PlayerEntity player, RecipeInputInventory craftingInventory, CraftingResultInventory resultInventory, CallbackInfo ci) {
+//        if (!world.isClient) {
+//            ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity)player;
+//            ItemStack itemStack = ItemStack.EMPTY;
+//            Optional<CraftingRecipe> optional = world.getServer().getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftingInventory, world);
+//            if (optional.isPresent()) {
+//                CraftingRecipe craftingRecipe = (CraftingRecipe)optional.get();
+//                if (craftingRecipe.getId().getNamespace().equalsIgnoreCase("al_herbiary") && !world.getGameRules().getBoolean(Herbiary.ALLOW_VANILLA_RECIPES_CRAFT)) {
+//                    itemStack = craftingRecipe.craft(craftingInventory, world.getRegistryManager());
+//                } else if (world.getGameRules().getBoolean(Herbiary.ALLOW_VANILLA_RECIPES_CRAFT) && resultInventory.shouldCraftRecipe(world, serverPlayerEntity, craftingRecipe)) {
+//                    itemStack = craftingRecipe.craft(craftingInventory, world.getRegistryManager());
+//                }
+//            }
+//
+//            resultInventory.setStack(0, itemStack);
+//            handler.setPreviousTrackedSlot(0, itemStack);
+//            serverPlayerEntity.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, handler.nextRevision(), 0, itemStack));
+//        }
+//        ci.cancel();
+//    }
 
 }

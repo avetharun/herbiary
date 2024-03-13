@@ -6,6 +6,7 @@ import com.avetharun.herbiary.entity.OwlEntity;
 import com.avetharun.herbiary.entity.TentEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -20,5 +21,10 @@ public class TentEntityRenderer extends GeoEntityRenderer<TentEntity> {
         super(context, new TentEntityModel());
         this.shadowRadius = 0f;
         this.shadowOpacity = 0f;
+    }
+
+    @Override
+    public void render(TentEntity entity, float entityYaw, float partialTick, MatrixStack poseStack, VertexConsumerProvider bufferSource, int packedLight) {
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 }

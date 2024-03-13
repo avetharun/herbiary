@@ -1,5 +1,6 @@
 package com.avetharun.herbiary.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
@@ -18,6 +19,12 @@ public class PolarBranchBlock extends HorizontalFacingBlock {
     public PolarBranchBlock(Settings settings) {
         super(settings);
     }
+
+    @Override
+    protected MapCodec<? extends HorizontalFacingBlock> getCodec() {
+        return HorizontalFacingBlock.createCodec(PolarBranchBlock::new);
+    }
+
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> stateManager) {
         stateManager.add(Properties.HORIZONTAL_FACING);

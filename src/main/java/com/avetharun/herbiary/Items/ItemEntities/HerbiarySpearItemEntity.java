@@ -19,7 +19,7 @@ public class HerbiarySpearItemEntity extends PersistentProjectileEntity {
     public  ItemStack tridentStack;
     private Entity owner;
     public HerbiarySpearItemEntity(EntityType<HerbiarySpearItemEntity> type, World world) {
-        super (type, world);
+        super (type, world, ModItems.SPEAR_ITEM.getDefaultStack());
     }
 
     @Override
@@ -45,7 +45,7 @@ public class HerbiarySpearItemEntity extends PersistentProjectileEntity {
 
 
     public HerbiarySpearItemEntity(World world, LivingEntity _owner, ItemStack stack) {
-        super(ModItems.SPEAR_ENTITY_TYPE, world);
+        super(ModItems.SPEAR_ENTITY_TYPE, world, stack);
 
         this.tridentStack = stack;
         owner = _owner;

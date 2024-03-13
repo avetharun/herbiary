@@ -2,6 +2,7 @@ package com.avetharun.herbiary.block;
 
 import com.avetharun.herbiary.ModItems;
 import com.avetharun.herbiary.entity.block.FieldMouseBurrowBlockEntity;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -23,6 +24,11 @@ public class FieldMouseBurrowBlock extends BlockWithEntity {
     }
 
     @Override
+    protected MapCodec<? extends BlockWithEntity> getCodec() {
+        return null;
+    }
+
+    @Override
     public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
         return true;
     }
@@ -35,7 +41,7 @@ public class FieldMouseBurrowBlock extends BlockWithEntity {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, ModItems.FIELD_MOUSE_BURROW_BLOCK_ENTITY, (world1, pos, state1, be) -> FieldMouseBurrowBlockEntity.tick(world1, pos, state1, be));
+        return (world1, pos, state1, be) -> FieldMouseBurrowBlockEntity.tick(world1, pos, state1, (FieldMouseBurrowBlockEntity) be);
     }
 
     @Nullable

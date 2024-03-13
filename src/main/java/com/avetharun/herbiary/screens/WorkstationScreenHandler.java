@@ -11,6 +11,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.screen.*;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
@@ -23,7 +24,7 @@ public class WorkstationScreenHandler extends ScreenHandler {
     private final ScreenHandlerContext context;
     private final Property selectedRecipe;
     private final World world;
-    private List<WorkstationRecipe> availableRecipes;
+    private List<RecipeEntry<WorkstationRecipe>> availableRecipes;
     private ItemStack inputStack;
     private ItemStack inputRockStack;
     long lastTakeTime;
@@ -73,13 +74,13 @@ public class WorkstationScreenHandler extends ScreenHandler {
             public boolean canTakeItems(PlayerEntity playerEntity) {
                 ItemStack r = WorkstationScreenHandler.this.inputRockSlot.getStack();
                 boolean bl1 = WorkstationScreenHandler.this.isInBounds(WorkstationScreenHandler.this.getSelectedRecipe()) &&
-                        WorkstationScreenHandler.this.getAvailableRecipes().get(WorkstationScreenHandler.this.selectedRecipe.get()).matchesTool(r);
+                        WorkstationScreenHandler.this.getAvailableRecipes().get(WorkstationScreenHandler.this.selectedRecipe.get()).value().matchesTool(r);
                 return super.canTakeItems(playerEntity) && bl1;
             }
 
             public void onTakeItem(PlayerEntity player, ItemStack stack) {
                 if (inputRockSlot.hasStack()) {
-                    stack.onCraft(player.getWorld(), player, stack.getCount());
+                    stack.onCraftByPlayer(player.getWorld(), player, stack.getCount());
                     ItemStack itemStack = WorkstationScreenHandler.this.inputSlot.takeStack(1);
                     if (!itemStack.isEmpty()) {
                         WorkstationScreenHandler.this.populateResult();
@@ -117,7 +118,7 @@ public class WorkstationScreenHandler extends ScreenHandler {
         return this.selectedRecipe.get();
     }
 
-    public List<WorkstationRecipe> getAvailableRecipes() {
+    public List<RecipeEntry<WorkstationRecipe>> getAvailableRecipes() {
         return this.availableRecipes;
     }
 
@@ -175,11 +176,11 @@ public class WorkstationScreenHandler extends ScreenHandler {
 
     void populateResult() {
         if (!this.availableRecipes.isEmpty() && this.isInBounds(this.selectedRecipe.get())) {
-            WorkstationRecipe stonecuttingRecipe = this.availableRecipes.get(this.selectedRecipe.get());
-            if (stonecuttingRecipe.matchesTool(this.inputRockSlot.getStack()) && this.inputRockSlot.getStack() != ItemStack.EMPTY) {
+            RecipeEntry<WorkstationRecipe> stonecuttingRecipe = this.availableRecipes.get(this.selectedRecipe.get());
+            if (stonecuttingRecipe.value().matchesTool(this.inputRockSlot.getStack()) && this.inputRockSlot.getStack() != ItemStack.EMPTY) {
                 this.output.setLastRecipe(stonecuttingRecipe);
-                this.craftedSoundEvent = stonecuttingRecipe.onCraftSound;
-                this.outputSlot.setStack(stonecuttingRecipe.craft(this.input, this.world.getRegistryManager()));
+                this.craftedSoundEvent = stonecuttingRecipe.value().onCraftSound;
+                this.outputSlot.setStack(stonecuttingRecipe.value().craft(this.input, this.world.getRegistryManager()));
             }
         } else {
             this.outputSlot.setStack(ItemStack.EMPTY);
@@ -208,7 +209,7 @@ public class WorkstationScreenHandler extends ScreenHandler {
             Item item = itemStack2.getItem();
             itemStack = itemStack2.copy();
             if (index == 1) {
-                item.onCraft(itemStack2, player.getWorld(), player);
+                item.onCraftByPlayer(itemStack2, player.getWorld(), player);
                 if (!this.insertItem(itemStack2, 2, 38, true)) {
                     return ItemStack.EMPTY;
                 }

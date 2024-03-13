@@ -14,9 +14,7 @@ import com.avetharun.herbiary.screens.BackpackScreenHandler;
 import com.avetharun.herbiary.ModItems;
 import com.avetharun.herbiary.entity.ModEntityTypes;
 import com.avetharun.herbiary.recipes.RecipesUtil;
-import com.avetharun.herbiary.screens.CampfirePotScreenHandler;
 import com.avetharun.herbiary.screens.WorkstationScreen;
-import com.mojang.blaze3d.systems.RenderCall;
 import com.mojang.serialization.Codec;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -36,7 +34,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.gui.screen.world.WorldCreator;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
@@ -44,7 +41,6 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.DefaultParticleType;
@@ -130,6 +126,7 @@ public class HerbiaryClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntityTypes.FIELD_MOUSE_ENTITY_TYPE, FieldMouseEntityRenderer::new);
         EntityRendererRegistry.register(ModItems.SPEAR_ENTITY_TYPE, HerbiarySpearItemModel::new);
         EntityRendererRegistry.register(ModEntityTypes.TENT_ENTITY_TYPE, TentEntityRenderer::new);
+        EntityRendererRegistry.register(ModEntityTypes.ROPE_TRAP_ENTITY_TYPE, RopeTrapEntityRenderer::new);
 
         EntityRendererRegistry.register(ModEntityTypes.TENT_STORAGE_ENTITY_ENTITY_TYPE, TentSubEntityRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(MODEL_SPEAR_LAYER, HerbiarySpearItemModel::getTexturedModelData);
@@ -137,7 +134,6 @@ public class HerbiaryClient implements ClientModInitializer {
 
 
         HandledScreens.register(RecipesUtil.WORKSTATION_SCREEN_HANDLER, WorkstationScreen::new);
-        HandledScreens.register(RecipesUtil.POT_SCREEN_HANDLER, CampfirePotScreenHandler.CampfirePotScreen::new);
         HandledScreens.register(BackpackScreenHandler.BACKPACK_SCREEN_HANDLER_TYPE, BackpackScreenHandler.BackpackScreen::new);
 
         ModelPredicateProviderRegistry.register(new Identifier("bow_pull"), (stack, world, entity, seed) -> {
