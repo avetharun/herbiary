@@ -32,7 +32,7 @@ public class TreeMountedBlock extends HorizontalFacingBlock {
     }
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext ctx) {
-        Direction dir = state.get(FACING);
+        Direction dir = state.get(Properties.HORIZONTAL_FACING);
         return switch (dir) {
             case SOUTH -> VoxelShapes.cuboid(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.4f);
             case NORTH -> VoxelShapes.cuboid(0.0f, 0.0f, 0.6f, 1.0f, 1.0f, 1.0f);
@@ -48,14 +48,14 @@ public class TreeMountedBlock extends HorizontalFacingBlock {
 
     @Override
     public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (world.getBlockState(pos.offset(state.get(FACING).getOpposite())).isAir()) {world.breakBlock(pos, false);}
+        if (world.getBlockState(pos.offset(state.get(Properties.HORIZONTAL_FACING).getOpposite())).isAir()) {world.breakBlock(pos, false);}
         super.neighborUpdate(state, world, pos, sourceBlock, sourcePos, notify);
     }
 
 
     @Override
     public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-        Direction direction = (Direction)state.get(FACING);
+        Direction direction = (Direction)state.get(Properties.HORIZONTAL_FACING);
         BlockPos blockPos = pos.offset(direction.getOpposite());
         BlockState blockState = world.getBlockState(blockPos);
         return blockState.isIn(BlockTags.OVERWORLD_NATURAL_LOGS) || blockState.isIn(Herbiary.MUSHROOM_PLACEABLE);

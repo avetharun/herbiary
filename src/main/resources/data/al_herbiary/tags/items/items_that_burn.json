@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "minecraft:stick"
+    "#al_herbiary:sticks",
+    "#al_herbiary:bark"
   ]
 }

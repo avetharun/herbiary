@@ -4,6 +4,7 @@
     "bottom": "minecraft:block/spruce_planks",
     "side": "minecraft:block/spruce_planks",
     "top": "minecraft:block/spruce_planks",
-    "soil": "minecraft:block/dirt"
+    "soil": "minecraft:block/dirt",
+    "particle": "block/spruce_planks"
   }
 }

@@ -48,6 +48,9 @@ import java.util.zip.Adler32;
 import java.util.zip.CRC32;
 
 public class alib {
+    public static float mod(float a, float b){
+        return ((a % b) + b) % b;
+    }
     // Class to automatically create an Entity Part (Similar to how an Ender Dragon does it)
     public static abstract class EntityPart<T extends Entity> extends Entity {
         public EntityPart(EntityType<?> type, T parent, World world) {

@@ -1,0 +1,10 @@
+{
+  "type": "al_herbiary:workstation",
+  "ingredient": {
+    "item": "minecraft:beetroot"
+  },
+  "craft_sound" : "al_herbiary:rock_strike",
+  "result": {
+    "item":"minecraft:red_dye"
+  }
+}

@@ -27,6 +27,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -36,6 +37,7 @@ import java.util.Random;
 
 @Mixin(FlintAndSteelItem.class)
 public class FlintAndSteelMixin extends Item {
+    @Unique
     Random random = new Random(0);
 
     public FlintAndSteelMixin(Settings settings) {

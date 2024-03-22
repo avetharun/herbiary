@@ -61,6 +61,7 @@ public class HandledScreenMixin {
             alib.setMixinField(stack, "isBeingRenderedInHand", true);
             alib.setMixinField(stack, "isBeingRenderedInGUICompat", false);
             alib.setMixinField(stack, "isBeingRenderedInHotbar", false);
+            BooleanModelOverride.currentModelTransform = renderMode;
         }
     }
     @Mixin(PlayerHeldItemFeatureRenderer.class)
@@ -104,10 +105,12 @@ public class HandledScreenMixin {
             DatapackUtilsClient.currentInventorySlot = slot.id;
         }
         DatapackUtilsClient.currentGlobalSlot = slot.id;
+        BooleanModelOverride.currentModelTransform = ModelTransformationMode.GUI;
     }
-    @Inject(method="drawSlot", at=@At("HEAD"))
+    @Inject(method="drawSlot", at=@At("TAIL"))
     void drawSlotEnd(DrawContext context, Slot slot, CallbackInfo ci){
         ItemStack itemStack = slot.getStack();
         DatapackUtilsClient.currentInventorySlot = -1;
+        BooleanModelOverride.currentModelTransform = ModelTransformationMode.NONE;
     }
 }

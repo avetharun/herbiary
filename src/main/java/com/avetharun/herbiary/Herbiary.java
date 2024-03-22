@@ -15,6 +15,8 @@ import com.avetharun.herbiary.screens.BackpackScreenHandler;
 import com.avetharun.herbiary.screens.WorkstationScreenHandler;
 import com.feintha.regedit.RegistryEditEvent;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
@@ -23,6 +25,7 @@ import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.fabric.api.gamerule.v1.FabricGameRuleVisitor;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -33,13 +36,19 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.FlowerBlock;
 import net.minecraft.block.StonecutterBlock;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.*;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
 import net.minecraft.particle.DefaultParticleType;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -65,8 +74,10 @@ import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.poi.PointOfInterestType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 public class Herbiary implements ModInitializer {
     public static RegistryKey<Registry<HerbDescriptor>> HERB_DESCRIPTOR_KEY;
@@ -138,6 +149,7 @@ public class Herbiary implements ModInitializer {
     public static TagKey<Block> NEST_COLLECTABLES = TagKey.of(RegistryKeys.BLOCK, new Identifier("al_herbiary", "nest_collectables"));
     public static TagKey<Block> PARTIALLY_SUBMERGED_PLACEABLES = TagKey.of(RegistryKeys.BLOCK, new Identifier("al_herbiary", "partially_submerged_placeables"));
     public static TagKey<Block> FARMLAND = TagKey.of(RegistryKeys.BLOCK, new Identifier("al_herbiary", "farmland"));
+    public static TagKey<Block> SHARPENING_BLOCKS = TagKey.of(RegistryKeys.BLOCK, new Identifier("al_herbiary", "blocks_that_can_sharpen"));
 
     public static TagKey<Item> ALLOWED_ITEMS_ON_TOOL_RACK = TagKey.of(RegistryKeys.ITEM, new Identifier("al_herbiary", "allowed_tool_rack_items"));
     public static TagKey<Item> TOOLS = ALLOWED_ITEMS_ON_TOOL_RACK;
@@ -146,6 +158,7 @@ public class Herbiary implements ModInitializer {
     public static TagKey<Item> CAMPFIRE_PLACEABLE_ITEMS = TagKey.of(RegistryKeys.ITEM, new Identifier("al_herbiary", "campfire_placeable_items"));
     public static TagKey<Item> BOWS = TagKey.of(RegistryKeys.ITEM, new Identifier("al_herbiary", "bows"));
     public static TagKey<Item> ITEMS_THAT_BURN = TagKey.of(RegistryKeys.ITEM, new Identifier("al_herbiary", "items_that_burn"));
+    public static TagKey<Item> HEAT_BLOCKING_ITEMS = TagKey.of(RegistryKeys.ITEM, new Identifier("al_herbiary", "heat_blocking_items"));
 
     private static PacketByteBuf gameRuleTick(HerbiaryBlockStateInitPacket p, MinecraftServer server) {
         alib.GetAllBlocksInTagAnd(ALLOWED_VANILLA_BREAKABLES, (pair) -> {
@@ -175,16 +188,15 @@ public class Herbiary implements ModInitializer {
     public static DefaultParticleType FLINT_SPARK = FabricParticleTypes.simple();
     public static DefaultParticleType FLINT_SPARK_SMOKE = FabricParticleTypes.simple();
     public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access) {}
+    static boolean ALLOW_VANILLA_RECIPE_CRAFT_last = false;
     @Override
     public void onInitialize() {
-        RegistryEditEvent.EVENT.register(manipulator -> {
-            manipulator.Redirect(Registries.BLOCK, Blocks.STONE, new StonecutterBlock(FabricBlockSettings.copyOf(Blocks.BEDROCK)));
-        });
+        RegistryOverrides.Override();
         BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_FOREST), GenerationStep.Feature.VEGETAL_DECORATION, RegistryKey.of(RegistryKeys.PLACED_FEATURE, new Identifier("al_herbiary","blueberry_bush")));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             LearnCommand.register(dispatcher,registryAccess);
-
         });
+        
         ModItems.registerModItemData();
         ModEntityTypes.InitializeModEntityTypes();
         OWL_SPAWN_EGG = Registry.register(Registries.ITEM, new Identifier("al_herbiary", "owl_spawn_egg"), new SpawnEggItem(ModEntityTypes.OWL_ENTITY_TYPE,
@@ -223,8 +235,17 @@ public class Herbiary implements ModInitializer {
         });
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
             sendAllPlayersBreakables(server.getPlayerManager());
-        });
 
+            for (RecipeEntry<?> value : server.getRecipeManager().values()) {
+                if (Objects.equals(value.id().getNamespace(), "minecraft") && !server.getGameRules().getBoolean(ALLOW_VANILLA_RECIPES_CRAFT)) {
+                    server.getPlayerManager().getPlayerList().forEach(entity -> {
+                        entity.lockRecipes(List.of(value));
+                    });
+                }
+            }
+        });
+        ServerTickEvents.START_SERVER_TICK.register(server -> {
+        });
         EntitySleepEvents.ALLOW_BED.register((entity, sleepingPos, state, vanillaResult) -> ActionResult.SUCCESS);
         EntitySleepEvents.MODIFY_SLEEPING_DIRECTION.register((entity, sleepingPos, sleepingDirection) -> {
             var ents = alib.getEntitiesOfTypeInRange(entity.getWorld(), sleepingPos, 1.25f, ModEntityTypes.TENT_ENTITY_TYPE);
@@ -241,8 +262,6 @@ public class Herbiary implements ModInitializer {
         HERB_DESCRIPTOR_KEY = RegistryKey.ofRegistry(new Identifier("herb_descriptor"));
         HERB_DESCRIPTORS = FabricRegistryBuilder.createSimple(HerbDescriptor.class, new Identifier("herb_descriptors")).buildAndRegister();
         Registry.register(HERB_DESCRIPTORS, new Identifier("empty"), EMPTY_OR_UNKNOWN_DESCRIPTOR);
-
-
         ServerPlayNetworking.registerGlobalReceiver(IGNITER_IGNITE_PACKET_ID, (server, player, handler, buf, responseSender) -> {
             FlintIgniterIgnitePacket p = new FlintIgniterIgnitePacket(buf);
             if (p.succeeded && player.getBlockPos().getSquaredDistance(p.pos.toCenterPos()) < 9*9) {

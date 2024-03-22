@@ -61,6 +61,11 @@ public class SpearItem extends TridentItem implements Vanishable {
         this.attributeModifiers = builder.build();
     }
 
+    @Override
+    public UseAction getUseAction(ItemStack stack) {
+        return UseAction.CROSSBOW;
+    }
+
     public Multimap<EntityAttribute, EntityAttributeModifier> getAttributeModifiers(EquipmentSlot slot) {
 
         return slot == EquipmentSlot.MAINHAND ? this.attributeModifiers : super.getAttributeModifiers(slot);

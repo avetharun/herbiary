@@ -15,6 +15,8 @@ import net.minecraft.client.render.block.entity.CampfireBlockEntityRenderer;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -129,10 +131,23 @@ public abstract class CampfireBlockEntityMixin {
 
     // TODO: make campfires burn nearby burnable blocks, with its factor being weighed by the amount of logs present.
 
+    @Inject(method="unlitServerTick", at=@At("HEAD"))
+    private static void unlitTickMixin(World world, BlockPos pos, BlockState state, CampfireBlockEntity campfire, CallbackInfo ci){
+        if (state.get(Properties.AGE_4) == 0) {
+            if (campfire.getItemsBeingCooked().size() > 0) {
+                campfire.getItemsBeingCooked().forEach(stack -> {
+                    if (stack.isEmpty()) {return;}
+                    world.spawnEntity(new ItemEntity(world, pos.toCenterPos().x, pos.toCenterPos().y, pos.toCenterPos().z, stack));
+                });
+                campfire.spawnItemsBeingCooked();
+                campfire.getItemsBeingCooked().clear();
+            }
+        }
+    }
+
     @SuppressWarnings("JavaReflectionMemberAccess")
     @Inject(method="litServerTick", at=@At("HEAD"))
     private static void litServerTickMixin(World world, BlockPos pos, BlockState state, CampfireBlockEntity campfire, CallbackInfo ci) {
-
         Field bt,ib;
         try {
             bt = CampfireBlockEntity.class.getDeclaredField("ticksSinceBegunBurning");
@@ -144,6 +159,9 @@ public abstract class CampfireBlockEntityMixin {
             if (iBurns.size() > 0) {
                 if (bt.getInt(campfire) > (20*60) + (world.random.nextBetween(0,20)*20)) {
                     iBurns.pop();
+                    if (world.getRandom().nextBetween(0,100) > 75) {
+                        state = state.with(Properties.BOTTOM, true);
+                    }
                     bt.setInt(campfire, 0);
                 }
                 world.setBlockState(pos, state.with(Properties.AGE_4, iBurns.size()));
@@ -151,13 +169,9 @@ public abstract class CampfireBlockEntityMixin {
             } else {
                 bt.setInt(campfire, 0);
             }
-
-
             if (state.get(Properties.AGE_4) == 0) {
                 world.setBlockState(pos, state.with(Properties.LIT, false));
             }
-
-
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

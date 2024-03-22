@@ -5,6 +5,7 @@ import com.avetharun.dpu.client.ModelOverrides.IntModelOverride;
 import com.avetharun.dpu.client.ModelOverrides.StringModelOverride;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.ClampedModelPredicateProvider;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
@@ -77,6 +78,13 @@ public class DatapackUtilsClient implements ClientModInitializer {
                 return 0.0F;
             } else {
                 return entity.getActiveItem() != stack ? 0.0F : (float)(stack.getMaxUseTime() - entity.getItemUseTimeLeft()) / 20.0F;
+            }
+        });
+        ModelPredicateProviderRegistry.register(new Identifier("swing_time"), (stack, world, entity, seed) -> {
+            if (entity == null) {
+                return 0.0F;
+            } else {
+                return (float)(entity.getHandSwingProgress(MinecraftClient.getInstance().getTickDelta()));
             }
         });
         ModelPredicateProviderRegistry.register(new Identifier("is_using"), (stack, world, entity, seed) -> {

@@ -64,7 +64,7 @@ public abstract class ItemRendererMixin {
     private BakedModel injectedModel(BakedModel model, @Local ItemStack stack, @Local MatrixStack matrixStack, @Local ModelTransformationMode mode, @Local VertexConsumerProvider consumerProvider) {
         var m =  model.getOverrides().apply(model,stack,MinecraftClient.getInstance().world, null,42);
         if (stack.isOf(Items.DEBUG_STICK) && FabricLoader.getInstance().isDevelopmentEnvironment()) {
-            DatapackUtils.debugRender(matrixStack, mode, consumerProvider);
+            DatapackUtils.debugRender(matrixStack, BooleanModelOverride.currentModelTransform, consumerProvider);
         }
         return m;
     }
@@ -77,10 +77,12 @@ public abstract class ItemRendererMixin {
         @Inject(method="renderHotbarItem", at=@At("HEAD"))
         void injectRenderHotbarItem(DrawContext context, int x, int y, float f, PlayerEntity player, ItemStack stack, int seed, CallbackInfo ci){
             alib.setMixinField(stack, "isBeingRenderedInHotbar", true);
+            BooleanModelOverride.currentModelTransform = ModelTransformationMode.GUI;
         }
         @Inject(method="renderHotbarItem", at=@At("RETURN"))
         void injectRenderHotbarItemEnd(DrawContext context, int x, int y, float f, PlayerEntity player, ItemStack stack, int seed, CallbackInfo ci){
             alib.setMixinField(stack, "isBeingRenderedInHotbar", false);
+            BooleanModelOverride.currentModelTransform = ModelTransformationMode.GUI;
         }
     }
 

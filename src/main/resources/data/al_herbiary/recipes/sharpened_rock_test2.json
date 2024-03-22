@@ -1,0 +1,13 @@
+{
+  "type": "al_herbiary:workstation",
+  "count": 2,
+  "tool": {"item": "al_herbiary:bone_shard"},
+  "ingredient": {
+    "item": "al_herbiary:rock"
+  },
+  "craft_sound" : "al_herbiary:rock_strike",
+  "result": {
+    "item":"minecraft:stone"
+  },
+  "consume": true
+}

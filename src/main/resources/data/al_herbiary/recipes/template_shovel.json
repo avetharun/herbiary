@@ -1,0 +1,13 @@
+{
+  "type": "al_herbiary:workstation",
+  "tool": {"item": "al_herbiary:iron_hammer"},
+  "ingredient": {
+    "item": "minecraft:iron_ingot"
+  },
+  "craft_sound" : "al_herbiary:rock_strike",
+  "require_heat": true,
+  "result": {
+    "item":"al_herbiary:shovel_template",
+    "count": 1
+  }
+}

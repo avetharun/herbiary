@@ -33,33 +33,34 @@ public class StatusOverlay {
     }
     public static HashMap<String, PlayerStatus> localStatuses;
     public static void render(DrawContext context) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        InGameHud hud = client.inGameHud;
-        TextRenderer textRenderer = client.textRenderer;
-
-        int guiScale = client.options.getGuiScale().getValue();
-        int scaleFactor = guiScale > 0 ? guiScale : 1;
-        int margin = 5 * scaleFactor / 2; // Same as text padding
-        int screenWidth = client.getWindow().getFramebufferWidth() / scaleFactor;
-        int screenHeight = client.getWindow().getFramebufferHeight() / scaleFactor;
-        int x = screenWidth - margin * 2; // Adjust 5 for padding
-        int y = margin; // Start at the top of the screen
-
-        for (int i = 0; i < localStatuses.size(); i++) {
-            String id = (String) localStatuses.keySet().toArray()[i];
-            PlayerStatus status = localStatuses.get(id);
-            String display = status.title + "  " + (int)status.percentage + ((int)status.percentage < 100 ? " ": "") + "%";
-//            System.out.println(display);
-//            if (status.percentage < status.requiredPercentageToDisplay) {continue;}
-            // Calculate the width and height of the text with the current GUI scale
-            int width = textRenderer.getWidth(display);
-            int height = textRenderer.fontHeight;
-            // Adjust the y position for each status block
-            // Render the background
-            // Render the text
-            context.drawTextWithShadow(textRenderer, display, x - width, y - height, 0xffffff7f);
-            y += (height + margin * 3.5f);
-        }
-        context.draw();
+        return;
+//        MinecraftClient client = MinecraftClient.getInstance();
+//        InGameHud hud = client.inGameHud;
+//        TextRenderer textRenderer = client.textRenderer;
+//
+//        int guiScale = client.options.getGuiScale().getValue();
+//        int scaleFactor = guiScale > 0 ? guiScale : 1;
+//        int margin = 5 * scaleFactor / 2; // Same as text padding
+//        int screenWidth = client.getWindow().getFramebufferWidth() / scaleFactor;
+//        int screenHeight = client.getWindow().getFramebufferHeight() / scaleFactor;
+//        int x = screenWidth - margin * 2; // Adjust 5 for padding
+//        int y = margin; // Start at the top of the screen
+//
+//        for (int i = 0; i < localStatuses.size(); i++) {
+//            String id = (String) localStatuses.keySet().toArray()[i];
+//            PlayerStatus status = localStatuses.get(id);
+//            String display = status.title + "  " + (int)status.percentage + ((int)status.percentage < 100 ? " ": "") + "%";
+////            System.out.println(display);
+////            if (status.percentage < status.requiredPercentageToDisplay) {continue;}
+//            // Calculate the width and height of the text with the current GUI scale
+//            int width = textRenderer.getWidth(display);
+//            int height = textRenderer.fontHeight;
+//            // Adjust the y position for each status block
+//            // Render the background
+//            // Render the text
+//            context.drawTextWithShadow(textRenderer, display, x - width, y - height, 0xffffff7f);
+//            y += (height + margin * 3.5f);
+//        }
+//        context.draw();
     }
 }

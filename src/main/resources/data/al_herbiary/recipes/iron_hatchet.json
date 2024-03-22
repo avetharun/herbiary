@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NIS",
+    "IT ",
+    " T "
+  ],
+  "key": {
+    "N": {
+      "item": "minecraft:iron_nugget"
+    },
+    "T": {
+      "item": "al_herbiary:hardwood_stick"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "S": {
+      "tag": "al_herbiary:string"
+    }
+  },
+  "result": {
+    "item": "al_herbiary:iron_hatchet"
+  }
+}

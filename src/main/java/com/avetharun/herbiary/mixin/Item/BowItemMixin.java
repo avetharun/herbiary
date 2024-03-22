@@ -15,7 +15,6 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.inventory.StackReference;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -23,27 +22,24 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
-import net.minecraft.util.ClickType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
-import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.lang.reflect.Field;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Mixin(BowItem.class)
 public abstract class BowItemMixin {
@@ -142,16 +138,8 @@ public abstract class BowItemMixin {
     @Inject(method = "use",at=@At("HEAD"), cancellable = true)
     public void use(World world, PlayerEntity user, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir) {
         ItemStack itemStack = user.getStackInHand(hand);
+
         ItemStack stackHead = user.getEquippedStack(EquipmentSlot.HEAD);
-        if (stackHead.isOf(ModItems.QUIVER)) {
-            if (stackHead.getOrCreateNbt().contains("arrows") || stackHead.getOrCreateNbt().contains("sharp_arrows")) {
-                if (stackHead.getOrCreateNbt().getInt("arrows") >= 1 || stackHead.getOrCreateNbt().getInt("sharp_arrows") >= 1) {
-                    user.setCurrentHand(hand);
-                    user.playSoundIfNotSilent(SoundEvents.ITEM_BUNDLE_REMOVE_ONE);
-                    cir.setReturnValue(TypedActionResult.consume(itemStack));
-                }
-            }
-        }
     }
 
     @Inject(method="onStoppedUsing", at=@At("HEAD"), cancellable = true)
@@ -167,47 +155,60 @@ public abstract class BowItemMixin {
                 bowIsLongbow = true;
             }
             boolean bl = playerEntity.getAbilities().creativeMode || EnchantmentHelper.getLevel(Enchantments.INFINITY, stack) > 0;
-            ItemStack itemStack = playerEntity.getProjectileType(stack);
-            ItemStack stackHead = user.getEquippedStack(EquipmentSlot.HEAD);
-            boolean has_quiver_equipped = false;
-            boolean has_SharpArrow = false;
-            boolean has_NormalArrow = false;
-
-            if (stackHead.isOf(ModItems.QUIVER)) {
-                if ((stackHead.getOrCreateNbt().contains("arrows")|| ((PlayerEntity) user).isCreative()) && alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.NORMAL) {
-                    if (((PlayerEntity) user).isCreative() || stackHead.getOrCreateNbt().getInt("arrows") >= 1) {
-                        has_quiver_equipped = true;
-                        has_NormalArrow = true;
+            AtomicReference<ItemStack> itemStack = new AtomicReference<>(playerEntity.getProjectileType(stack));
+            if (playerEntity.getInventory().containsAny(Set.of(ModItems.SHARPENED_OBSIDIAN_ARROW_ITEM)) && alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.SHARPENED) {
+                AtomicBoolean bl3 = new AtomicBoolean(false);
+                playerEntity.getInventory().main.forEach(stack1 -> {
+                    if (!bl3.get() && stack1.isOf(ModItems.SHARPENED_OBSIDIAN_ARROW_ITEM)) {
+                        itemStack.set(stack1);
+                        bl3.set(true);
                     }
-                    itemStack = Items.ARROW.getDefaultStack();
-                }
-                if ((stackHead.getOrCreateNbt().contains("sharp_arrows")|| ((PlayerEntity) user).isCreative())&& alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.SHARPENED) {
-                    if (((PlayerEntity) user).isCreative() || stackHead.getOrCreateNbt().getInt("sharp_arrows") >= 1) {
-                        has_quiver_equipped = true;
-                        has_SharpArrow = true;
-                    }
-                    itemStack = ModItems.SHARPENED_OBSIDIAN_ARROW_ITEM.getDefaultStack();
-                }
+                });
             }
-            if (!itemStack.isEmpty() || bl || has_quiver_equipped) {
-                if (itemStack.isEmpty()) {
-                    itemStack = new ItemStack(Items.ARROW);
+            ItemStack stackHead = user.getEquippedStack(EquipmentSlot.HEAD);
+//            boolean has_quiver_equipped = false;
+//            boolean has_SharpArrow = false;
+//            boolean has_NormalArrow = false;
+
+//            if (stackHead.isOf(ModItems.QUIVER)) {
+//                System.out.println(stackHead.getOrCreateNbt().getInt("sharp_arrows"));
+//                System.out.println(stackHead.getOrCreateNbt().getInt("arrows"));
+//                if ((stackHead.getOrCreateNbt().contains("arrows")|| ((PlayerEntity) user).isCreative()) && alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.NORMAL) {
+//                    if (((PlayerEntity) user).isCreative() || stackHead.getOrCreateNbt().getInt("arrows") > 0) {
+//                        has_quiver_equipped = true;
+//                        has_NormalArrow = true;
+//                    }
+//                    itemStack = Items.ARROW.getDefaultStack();
+//                }
+//                if ((stackHead.getOrCreateNbt().contains("sharp_arrows")|| ((PlayerEntity) user).isCreative())&& alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.SHARPENED) {
+//                    if (((PlayerEntity) user).isCreative() || stackHead.getOrCreateNbt().getInt("sharp_arrows") > 0) {
+//                        has_quiver_equipped = true;
+//                        has_SharpArrow = true;
+//                    }
+//                    itemStack = ModItems.SHARPENED_OBSIDIAN_ARROW_ITEM.getDefaultStack();
+//                }
+//            }
+            if (!itemStack.get().isEmpty() || bl) {
+                if (itemStack.get().isEmpty()) {
+                    itemStack.set(new ItemStack(Items.ARROW));
                 }
                 int i = getMaxUseTime(stack) - remainingUseTicks;
                 float f = m_getPullProgress(i);
                 if (!((double)f < 0.1)) {
-                    boolean bl2 = bl && (itemStack.isIn(ItemTags.ARROWS) || has_quiver_equipped);
+                    boolean bl2 = bl && (itemStack.get().isIn(ItemTags.ARROWS));
                     if (!world.isClient) {
-                        ArrowItem arrowItem = (ArrowItem)(itemStack.getItem());
-                        ArrowEntity persistentProjectileEntity = (ArrowEntity) arrowItem.createArrow(world, itemStack, playerEntity);
+                        ArrowItem arrowItem = (ArrowItem)(itemStack.get().getItem());
+                        ArrowEntity persistentProjectileEntity = (ArrowEntity) arrowItem.createArrow(world, itemStack.get(), playerEntity);
                         persistentProjectileEntity.setVelocity(playerEntity, playerEntity.getPitch(), playerEntity.getYaw(), 0.0F, f * 3.0F, 1.0F);
-                        alib.setMixinField(persistentProjectileEntity, "isObsidian", itemStack.isOf(ModItems.SHARPENED_OBSIDIAN_ARROW_ITEM));
+                        alib.setMixinField(persistentProjectileEntity, "isObsidian", itemStack.get().isOf(ModItems.SHARPENED_OBSIDIAN_ARROW_ITEM));
                         if (bowIsVanilla) {
                             persistentProjectileEntity.setDamage(persistentProjectileEntity.getDamage() * 0.35f);
                             persistentProjectileEntity.setVelocity(playerEntity, playerEntity.getPitch(), playerEntity.getYaw(), 0.0F, f * 3.0F, 1.25F);
                         }
                         if (f == 1.0F && bowIsLongbow) {
                             persistentProjectileEntity.setCritical(true);
+                            persistentProjectileEntity.setDamage(persistentProjectileEntity.getDamage() * 0.5f);
+                            persistentProjectileEntity.setVelocity(playerEntity, playerEntity.getPitch(), playerEntity.getYaw(), 0.0F, f * 3.0F, 1.25F);
                         }
 
                         int j = EnchantmentHelper.getLevel(Enchantments.POWER, stack);
@@ -227,27 +228,27 @@ public abstract class BowItemMixin {
                         stack.damage(24, playerEntity, (p) -> {
                             p.sendToolBreakStatus(playerEntity.getActiveHand());
                         });
-                        if (bl2 || playerEntity.getAbilities().creativeMode && (itemStack.isOf(Items.SPECTRAL_ARROW) || itemStack.isOf(Items.TIPPED_ARROW))) {
+                        if (bl2 || playerEntity.getAbilities().creativeMode && (itemStack.get().isOf(Items.SPECTRAL_ARROW) || itemStack.get().isOf(Items.TIPPED_ARROW))) {
                             persistentProjectileEntity.pickupType = PersistentProjectileEntity.PickupPermission.CREATIVE_ONLY;
                         }
 
                         world.spawnEntity(persistentProjectileEntity);
                         if (!bl2 && !playerEntity.getAbilities().creativeMode) {
-                            itemStack.decrement(1);
-                            if (itemStack.isEmpty()) {
-                                playerEntity.getInventory().removeOne(itemStack);
+                            itemStack.get().decrement(1);
+                            if (itemStack.get().isEmpty()) {
+                                playerEntity.getInventory().removeOne(itemStack.get());
                             }
                         }
-                        if (has_quiver_equipped && !((PlayerEntity) user).isCreative()) {
-                            if (has_NormalArrow && alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.NORMAL) {
-                                int _i = stackHead.getOrCreateNbt().getInt("arrows");
-                                stackHead.getOrCreateNbt().putInt("arrows", _i - 1);
-                            }
-                            if (has_SharpArrow && alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.SHARPENED) {
-                                int _i = stackHead.getOrCreateNbt().getInt("sharp_arrows");
-                                stackHead.getOrCreateNbt().putInt("sharp_arrows", _i - 1);
-                            }
-                        }
+//                        if (has_quiver_equipped && !((PlayerEntity) user).isCreative()) {
+//                            if (has_NormalArrow && alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.NORMAL) {
+//                                int _i = stackHead.getOrCreateNbt().getInt("arrows");
+//                                stackHead.getOrCreateNbt().putInt("arrows", _i - 1);
+//                            }
+//                            if (has_SharpArrow && alib.getMixinField(user, "selectedArrowType") == QuiverItem.BowArrowType.SHARPENED) {
+//                                int _i = stackHead.getOrCreateNbt().getInt("sharp_arrows");
+//                                stackHead.getOrCreateNbt().putInt("sharp_arrows", _i - 1);
+//                            }
+//                        }
                     }
 
                     world.playSound((PlayerEntity)null, playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F / (world.getRandom().nextFloat() * 0.4F + 1.2F) + f * 0.5F);

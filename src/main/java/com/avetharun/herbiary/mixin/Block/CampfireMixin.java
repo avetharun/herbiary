@@ -1,6 +1,7 @@
 package com.avetharun.herbiary.mixin.Block;
 
 import com.avetharun.herbiary.Herbiary;
+import com.avetharun.herbiary.ModItems;
 import com.avetharun.herbiary.hUtil.ModRegistries;
 import com.avetharun.herbiary.hUtil.alib;
 import com.avetharun.herbiary.screens.WorkstationScreenHandler;
@@ -12,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.CampfireCookingRecipe;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
@@ -33,6 +35,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
@@ -53,9 +58,14 @@ import static net.minecraft.block.CampfireBlock.SIGNAL_FIRE;
 
 @SuppressWarnings("rawtypes")
 @Mixin(CampfireBlock.class)
-public abstract class CampfireMixin {
+public abstract class CampfireMixin extends BlockWithEntity {
     @Shadow @Final public static BooleanProperty LIT;
     @Shadow @Final public static BooleanProperty WATERLOGGED;
+
+    protected CampfireMixin(Settings settings) {
+        super(settings);
+    }
+
     public void setBurnables(IntProperty prop) {}
     @Inject(method="isSignalFireBaseBlock", at=@At("HEAD"), cancellable = true)
     private void isSignalFireBaseBlockMixin(BlockState state, CallbackInfoReturnable<Boolean> cir) {
@@ -72,13 +82,23 @@ public abstract class CampfireMixin {
     }
     @Inject(method="randomDisplayTick", at=@At("HEAD"), cancellable = true)
     private void onDisplayTick(BlockState state, World world, BlockPos pos, Random random, CallbackInfo ci) {
+
         if (state.get(Properties.AGE_4) == 0 || !state.get(Properties.LIT)) {
+            if (!state.get(Properties.BOTTOM)) {
+                Vec3d p = pos.toCenterPos();
+                for (int i = 1; i <= 4; i++) {
+                    float dx = (random.nextBetween(-10, 10) * 0.025f) / (i * 0.5f);
+                    float dy = (random.nextBetween(-10, 10) * 0.025f) / (i * 0.5f);
+                    float dz = (random.nextBetween(-10, 10) * 0.025f) / (i * 0.5f);
+                    world.addParticle(ParticleTypes.SMOKE, p.x + dx, p.y + dy, p.z + dz, 0, 0, 0);
+                }
+            }
             ci.cancel();
         }
     }
     @Inject(method="appendProperties", at=@At("RETURN"))
     private void appendPropertiesMixin(StateManager.Builder<Block, BlockState> builder, CallbackInfo ci) {
-        builder.add(Properties.AGE_4, Properties.OCCUPIED);
+        builder.add(Properties.AGE_4, Properties.OCCUPIED, Properties.BOTTOM);
     }
     private static final MethodHandle setDefaultStateMethod;
 
@@ -91,7 +111,7 @@ public abstract class CampfireMixin {
     }
     @Redirect(method = "<init>(ZILnet/minecraft/block/AbstractBlock$Settings;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/CampfireBlock;setDefaultState(Lnet/minecraft/block/BlockState;)V"))
     private void redirectSetDefaultState(CampfireBlock campfireBlock, BlockState state) {
-        BlockState modifiedState = state.with(LIT, false).with(Properties.AGE_4, 0).with(Properties.OCCUPIED, false);
+        BlockState modifiedState = state.with(LIT, false).with(Properties.AGE_4, 0).with(Properties.OCCUPIED, false).with(Properties.BOTTOM, false);
         try {
             setDefaultStateMethod.invokeExact((Block)campfireBlock, modifiedState);
         } catch (Throwable throwable) {
@@ -111,6 +131,15 @@ public abstract class CampfireMixin {
             }
             cir.setReturnValue(ActionResult.SUCCESS);
             return;
+        }
+        if (itemStack.isEmpty() && state.get(Properties.BOTTOM) && !state.get(Properties.LIT)) {
+            world.setBlockState(pos, state.with(Properties.BOTTOM, false));
+            if (!world.isClient) {
+                ItemEntity e1 = new ItemEntity(world, pos.toCenterPos().x, pos.toCenterPos().y, pos.toCenterPos().z, ModItems.SOOT_ITEM.getDefaultStack().copyWithCount(world.getRandom().nextBetween(1,3)));
+                ItemEntity e2 = new ItemEntity(world, pos.toCenterPos().x, pos.toCenterPos().y, pos.toCenterPos().z, ModItems.ASH_ITEM.getDefaultStack().copyWithCount(world.getRandom().nextBetween(1,5)));
+                world.spawnEntity(e1);
+                world.spawnEntity(e2);
+            }
         }
 
 
@@ -152,6 +181,11 @@ public abstract class CampfireMixin {
             cir.setReturnValue(ActionResult.PASS);
             cir.cancel();
         }
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+        return state.get(Properties.AGE_4) > 0 ? super.getCollisionShape(state, world, pos, context) : VoxelShapes.empty();
     }
 
     @Nullable

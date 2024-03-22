@@ -1,0 +1,12 @@
+{
+  "type": "al_herbiary:workstation",
+  "tool": {"tag": "al_herbiary:sharp_items"},
+  "ingredient": {
+    "tag": "al_herbiary:sinew_harvestable"
+  },
+  "craft_sound" : "al_herbiary:rock_strike",
+  "result": {
+    "item":"al_herbiary:sinew",
+    "count": 2
+  }
+}

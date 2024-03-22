@@ -42,13 +42,8 @@ public class BackpackBlock extends BlockWithEntity {
     }
     @Override
     public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
-        if (!world.isClient() && (world.getBlockEntity(pos, ModItems.BACKPACK_BLOCK_ENTITY)).isPresent()) {
-            var bp = world.getBlockEntity(pos, ModItems.BACKPACK_BLOCK_ENTITY).get();
-            SmallBackpackItem bpi = (SmallBackpackItem) bp.backpack.getItem();
-            world.spawnEntity(new ItemEntity((World)world, pos.getX(), pos.getY(), pos.getZ(), bp.backpack));
-        } else if (!world.isClient()) {
-            world.spawnEntity(new ItemEntity((World)world, pos.getX(), pos.getY(), pos.getZ(), ModItems.SMALL_BACKPACK.getRight().getDefaultStack()));
-        }
+        var bp = world.getBlockEntity(pos, ModItems.BACKPACK_BLOCK_ENTITY).get();
+        world.spawnEntity(new ItemEntity((World)world, pos.getX(), pos.getY(), pos.getZ(), bp.backpack));
         super.onBroken(world, pos, state);
         world.breakBlock(pos, false);
     }

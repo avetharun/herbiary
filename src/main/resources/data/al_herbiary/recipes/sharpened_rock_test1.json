@@ -1,0 +1,13 @@
+{
+  "type": "al_herbiary:workstation",
+  "count": 2,
+  "tool": {"tag": "al_herbiary:sticks"},
+  "ingredient": {
+    "item": "al_herbiary:rock"
+  },
+  "craft_sound" : "al_herbiary:rock_strike",
+  "result": {
+    "item":"minecraft:dirt"
+  },
+  "consume": true
+}

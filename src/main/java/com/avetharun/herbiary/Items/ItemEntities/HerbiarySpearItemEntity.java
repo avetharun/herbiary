@@ -13,8 +13,12 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.World;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 
-public class HerbiarySpearItemEntity extends PersistentProjectileEntity {
+public class HerbiarySpearItemEntity extends PersistentProjectileEntity implements GeoAnimatable {
 
     public  ItemStack tridentStack;
     private Entity owner;
@@ -54,5 +58,20 @@ public class HerbiarySpearItemEntity extends PersistentProjectileEntity {
     @Override
     // Never age
     public void age() {
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+
+    }
+    AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
+
+    @Override
+    public double getTick(Object object) {
+        return 0;
     }
 }

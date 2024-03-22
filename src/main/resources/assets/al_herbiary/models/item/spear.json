@@ -1,11 +1,10 @@
 {
+	"credit": "Made with Blockbench",
 	"parent": "al_herbiary:item/spear_gui",
 	"gui_light": "front",
 	"overrides": [
-		{"predicate": {
-			"is_hand_any": true
-		},
-			"model":"al_herbiary:item/spear_in_hand"
-		}
+		{"predicate": {"is_gui": false, "is_hand_any": true, "swing_time": 0, "use_time": 0}, "model": "al_herbiary:item/spear_in_hand"},
+		{"predicate": {"is_gui": false, "is_hand_any": true, "use_time": 0.001}, "model": "al_herbiary:item/spear_in_hand_throwing"},
+		{"predicate": {"is_gui": false, "is_hand_any": true, "swing_time": 0.001, "use_time": 0}, "model": "al_herbiary:item/spear_in_hand_swinging"}
 	]
 }

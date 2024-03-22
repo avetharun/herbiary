@@ -1,10 +1,13 @@
 {
   "type": "al_herbiary:workstation",
   "count": 1,
+  "consume": true,
   "tool": {"item": "al_herbiary:rock"},
   "ingredient": {
     "item": "al_herbiary:rock"
   },
   "craft_sound" : "al_herbiary:rock_strike",
-  "result": "al_herbiary:sharpened_rock"
+  "result": {
+    "item":"al_herbiary:sharpened_rock"
+  }
 }

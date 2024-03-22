@@ -6,5 +6,8 @@
     "item": "al_herbiary:rock"
   },
   "craft_sound" : "al_herbiary:rock_strike",
-  "result": "al_herbiary:sharpened_rock"
+  "result": {
+    "item":"al_herbiary:sharpened_rock"
+  },
+  "consume": true
 }

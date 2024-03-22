@@ -4,6 +4,7 @@ import com.avetharun.herbiary.ModItems;
 import com.avetharun.herbiary.recipes.WorkstationRecipe;
 import com.avetharun.herbiary.recipes.RecipesUtil;
 import com.google.common.collect.Lists;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingResultInventory;
@@ -12,13 +13,16 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.*;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WorkstationScreenHandler extends ScreenHandler {
     private final ScreenHandlerContext context;
@@ -73,30 +77,42 @@ public class WorkstationScreenHandler extends ScreenHandler {
             @Override
             public boolean canTakeItems(PlayerEntity playerEntity) {
                 ItemStack r = WorkstationScreenHandler.this.inputRockSlot.getStack();
-                boolean bl1 = WorkstationScreenHandler.this.isInBounds(WorkstationScreenHandler.this.getSelectedRecipe()) &&
-                        WorkstationScreenHandler.this.getAvailableRecipes().get(WorkstationScreenHandler.this.selectedRecipe.get()).value().matchesTool(r);
-                return super.canTakeItems(playerEntity) && bl1;
+                AtomicBoolean bl1 = new AtomicBoolean(WorkstationScreenHandler.this.isInBounds(WorkstationScreenHandler.this.getSelectedRecipe()) &&
+                        WorkstationScreenHandler.this.getAvailableRecipes().stream().anyMatch(workstationRecipeRecipeEntry -> workstationRecipeRecipeEntry.value().matchesTool(r)));
+                if (availableRecipes.size() == 0) {return false;}
+                var rc = availableRecipes.get(WorkstationScreenHandler.this.getSelectedRecipe()).value();
+                if (bl1.get() && rc.requireHeat) {
+                    context.run((world1, pos) -> {
+                        if (!world1.getBlockState(pos.down()).isOf(Blocks.MAGMA_BLOCK)) {
+                            bl1.set(false);
+                        }
+                    });
+                }
+                return super.canTakeItems(playerEntity) && bl1.get();
             }
 
             public void onTakeItem(PlayerEntity player, ItemStack stack) {
-                if (inputRockSlot.hasStack()) {
-                    stack.onCraftByPlayer(player.getWorld(), player, stack.getCount());
-                    ItemStack itemStack = WorkstationScreenHandler.this.inputSlot.takeStack(1);
-                    if (!itemStack.isEmpty()) {
-                        WorkstationScreenHandler.this.populateResult();
+                stack.onCraftByPlayer(player.getWorld(), player, stack.getCount());
+                ItemStack itemStack = WorkstationScreenHandler.this.inputSlot.takeStack(1);
+                if (!itemStack.isEmpty()) {
+                    WorkstationScreenHandler.this.populateResult();
+                }
+
+                context.run((world, pos) -> {
+                    long l = world.getTime();
+                    if (WorkstationScreenHandler.this.lastTakeTime != l) {
+                        var sh = WorkstationScreenHandler.this;
+                        if (sh.craftedSoundEvent == null) {
+                            world.playSound(null, pos, SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundCategory.BLOCKS, 1.0F, 1.0F);
+
+                        } else {
+                            world.playSound(null, pos, sh.craftedSoundEvent, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                        }
+                        WorkstationScreenHandler.this.lastTakeTime = l;
                     }
 
-                    context.run((world, pos) -> {
-                        long l = world.getTime();
-                        if (WorkstationScreenHandler.this.lastTakeTime != l) {
-                            var sh = WorkstationScreenHandler.this;
-                            world.playSound((PlayerEntity) null, pos, sh.craftedSoundEvent, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                            WorkstationScreenHandler.this.lastTakeTime = l;
-                        }
-
-                    });
-                    super.onTakeItem(player, stack);
-                }
+                });
+                super.onTakeItem(player, stack);
             }
         });
 
@@ -127,7 +143,7 @@ public class WorkstationScreenHandler extends ScreenHandler {
     }
 
     public boolean canCraft() {
-        return this.inputSlot.hasStack() && !this.availableRecipes.isEmpty() && this.inputRockSlot.hasStack();
+        return this.inputSlot.hasStack() && !this.availableRecipes.isEmpty();
     }
 
     public boolean canUse(PlayerEntity player) {
@@ -145,7 +161,8 @@ public class WorkstationScreenHandler extends ScreenHandler {
 
     @Override
     public ItemStack quickMove(PlayerEntity player, int slot) {
-        return ItemStack.EMPTY;
+
+        return transferSlot(player, slot);
     }
 
     private boolean isInBounds(int id) {
@@ -177,9 +194,9 @@ public class WorkstationScreenHandler extends ScreenHandler {
     void populateResult() {
         if (!this.availableRecipes.isEmpty() && this.isInBounds(this.selectedRecipe.get())) {
             RecipeEntry<WorkstationRecipe> stonecuttingRecipe = this.availableRecipes.get(this.selectedRecipe.get());
-            if (stonecuttingRecipe.value().matchesTool(this.inputRockSlot.getStack()) && this.inputRockSlot.getStack() != ItemStack.EMPTY) {
+            if (this.inputRockSlot.getStack() == ItemStack.EMPTY || stonecuttingRecipe.value().requiredTool.test(this.inputRockSlot.getStack())) {
                 this.output.setLastRecipe(stonecuttingRecipe);
-                this.craftedSoundEvent = stonecuttingRecipe.value().onCraftSound;
+                this.craftedSoundEvent = Registries.SOUND_EVENT.get(stonecuttingRecipe.value().onCraftSound);
                 this.outputSlot.setStack(stonecuttingRecipe.value().craft(this.input, this.world.getRegistryManager()));
             }
         } else {

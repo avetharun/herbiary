@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "al_herbiary:birch_bark",
+    "al_herbiary:oak_bark",
+    "al_herbiary:jungle_bark",
+    "al_herbiary:dark_oak_bark",
+    "al_herbiary:acacia_bark",
+    "al_herbiary:mangrove_bark",
+    "al_herbiary:spruce_bark",
+    "al_herbiary:cherry_bark"
+  ]
+}

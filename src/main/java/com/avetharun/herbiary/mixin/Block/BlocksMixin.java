@@ -26,11 +26,11 @@ public class BlocksMixin {
 //        }
     }
     @Shadow @Final public static Block CAMPFIRE;
-    @Redirect(method = "<clinit>", at = @At(value = "NEW", target = "(ZILnet/minecraft/block/AbstractBlock$Settings;)Lnet/minecraft/block/CampfireBlock;"))
-    private static CampfireBlock modifyBlock(boolean emitsParticles, int fireDamage, AbstractBlock.Settings settings) {
-        settings.luminance(state -> state.get(Properties.LIT) && (state.get(Properties.AGE_4) > 0) ? 10 : 0);
-        return new CampfireBlock(emitsParticles, fireDamage, settings);
-    }
+//    @Redirect(method = "<clinit>", at = @At(value = "NEW", target = "(ZILnet/minecraft/block/AbstractBlock$Settings;)Lnet/minecraft/block/CampfireBlock;"))
+//    private static CampfireBlock modifyBlock(boolean emitsParticles, int fireDamage, AbstractBlock.Settings settings) {
+//        settings.luminance(state -> state.get(Properties.LIT) && (state.get(Properties.AGE_4) > 0) ? 10 : 0);
+//        return new CampfireBlock(emitsParticles, fireDamage, settings);
+//    }
 //    @Redirect(method = "<clinit>", at = @At(ordinal = 1, value = "INVOKE", target = "Lnet/minecraft/block/Blocks;createLogBlock(Lnet/minecraft/block/MapColor;Lnet/minecraft/block/MapColor;)Lnet/minecraft/block/PillarBlock;"))
 //    private static PillarBlock modifyLogBlock_SPRUCE(MapColor topMapColor, MapColor sideMapColor) {
 //        return new SpruceLogMushroomSpawnerLikeBlock(FabricBlockSettings.create().instrument(Instrument.BASS).strength(2.0F).sounds(BlockSoundGroup.WOOD).burnable().mapColor((state) -> state.get(PillarBlock.AXIS) == Direction.Axis.Y ? topMapColor : sideMapColor));

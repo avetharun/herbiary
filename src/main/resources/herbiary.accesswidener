@@ -16,3 +16,7 @@ accessible method net/minecraft/client/render/model/json/ModelOverrideList$Baked
 
 accessible method net/minecraft/registry/entry/RegistryEntry$Reference setValue (Ljava/lang/Object;)V
 accessible field net/minecraft/registry/entry/RegistryEntry$Reference registryKey Lnet/minecraft/registry/RegistryKey;
+accessible field net/minecraft/block/entity/BlockEntityType blocks Ljava/util/Set;
+
+accessible    method    net/minecraft/client/gui/DrawContext    drawTooltip    (Lnet/minecraft/client/font/TextRenderer;Ljava/util/List;IILnet/minecraft/client/gui/tooltip/TooltipPositioner;)V
+accessible    method    net/minecraft/world/GameRules$Visitor    visitBoolean    (Lnet/minecraft/world/GameRules$Key;Lnet/minecraft/world/GameRules$Type;)V

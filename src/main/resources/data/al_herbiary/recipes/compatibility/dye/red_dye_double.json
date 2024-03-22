@@ -1,0 +1,11 @@
+{
+  "type": "al_herbiary:workstation",
+  "ingredient": {
+    "item": "minecraft:rose_bush"
+  },
+  "craft_sound" : "al_herbiary:rock_strike",
+  "result": {
+    "item":"minecraft:red_dye",
+    "count": 2
+  }
+}

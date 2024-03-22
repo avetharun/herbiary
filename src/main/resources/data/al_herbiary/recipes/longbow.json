@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "al_herbiary:hardwood_stick"
+    },
+    "X": {
+      "tag": "al_herbiary:string"
+    }
+  },
+  "pattern": [
+    " #X",
+    "# X",
+    " #X"
+  ],
+  "result": {
+    "item": "minecraft:bow"
+  }
+}

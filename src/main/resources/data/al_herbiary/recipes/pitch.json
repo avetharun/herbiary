@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "al_herbiary:soot"
+    },
+    {
+      "item": "al_herbiary:pine_sap"
+    },
+    {
+      "item": "al_herbiary:pine_sap"
+    }
+  ],
+  "result": {
+    "item": "al_herbiary:pitch"
+  }
+}

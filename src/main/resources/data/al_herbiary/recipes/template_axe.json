@@ -1,0 +1,11 @@
+{
+  "type": "al_herbiary:workstation",
+  "tool": {"item": "al_herbiary:iron_hammer"},
+  "require_heat": true,
+  "ingredient": {
+    "item": "minecraft:iron_ingot"
+  },
+  "result": {
+    "item":"al_herbiary:axe_template"
+  }
+}

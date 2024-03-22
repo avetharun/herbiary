@@ -26,21 +26,22 @@ public class WorkstationRecipe extends CuttingRecipe {
         super(type, serializer, group, input, output);
     }
     public boolean consumeToolOnCraft = false;
+    public boolean requireHeat = false;
+    public int toolDmgAmount = 0;
     public Ingredient requiredTool;
-    public SoundEvent onCraftSound = SoundEvents.UI_STONECUTTER_TAKE_RESULT;
-    public WorkstationRecipe(String s, Ingredient ingredient, Optional<Ingredient> tool, Optional<SoundEvent> soundEvent, ItemStack stack, Optional<Boolean> aBoolean) {
+    public Identifier onCraftSound = SoundEvents.UI_STONECUTTER_TAKE_RESULT.getId();
+    public WorkstationRecipe(String s, Ingredient ingredient, Optional<Ingredient> tool, Optional<Identifier> soundEvent, ItemStack stack, Optional<Boolean> aBoolean, Optional<Boolean> requiresHeat, Optional<Integer> toolDmg) {
         super(RecipesUtil.MORTAR_RECIPE_TYPE, RecipesUtil.MORTAR_SERIALIZER, s, ingredient, stack);
         this.requiredTool = tool.orElseGet(Ingredient::empty);
         this.consumeToolOnCraft = aBoolean.orElse(false);
-        this.onCraftSound = soundEvent.orElse(null);
+        this.onCraftSound = soundEvent.orElse(SoundEvents.UI_STONECUTTER_TAKE_RESULT.getId());
+        this.toolDmgAmount = toolDmg.orElse(0);
+        this.requireHeat = requiresHeat.orElse(false);
     }
 
     public boolean matchesTool(ItemStack s) {
         boolean bl1 = false;
-        for (ItemStack stack : requiredTool.getMatchingStacks()) {
-            bl1 |= s.isOf(stack.getItem());
-        }
-        return bl1;
+        return requiredTool.test(s);
     }
     public boolean matches(Inventory inventory, World world) {
         return this.ingredient.test(inventory.getStack(0));
@@ -56,13 +57,15 @@ public class WorkstationRecipe extends CuttingRecipe {
         public MortarRecipeSerializer(RecipeFactory<T> recipeFactory) {
 
             this.codec = RecordCodecBuilder.create((instance) -> {
-                Products.P6<RecordCodecBuilder.Mu<T>, String, Ingredient, Optional<Ingredient>, Optional<SoundEvent>, ItemStack, Optional<Boolean>> var10000 = instance.group(
+                Products.P8<RecordCodecBuilder.Mu<T>, String, Ingredient, Optional<Ingredient>, Optional<Identifier>, ItemStack, Optional<Boolean>, Optional<Boolean>, Optional<Integer>> var10000 = instance.group(
                         Codecs.createStrictOptionalFieldCodec(Codec.STRING, "group", "").forGetter((recipe) -> recipe.group),
                         Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("ingredient").forGetter((recipe) -> recipe.ingredient),
                         Ingredient.ALLOW_EMPTY_CODEC.optionalFieldOf("tool").forGetter(o -> Optional.of(o.requiredTool)),
-                        SoundEvent.CODEC.optionalFieldOf("result_sound").forGetter(o -> Optional.of(o.onCraftSound)),
-                        ItemStack.CODEC.fieldOf("result").forGetter(o->{return o.result;}),
-                        Codec.BOOL.optionalFieldOf("consume").forGetter(o -> Optional.of(o.consumeToolOnCraft))
+                        Identifier.CODEC.optionalFieldOf("result_sound").forGetter(o -> Optional.of(o.onCraftSound)),
+                        ItemStack.RECIPE_RESULT_CODEC.fieldOf("result").forGetter(o->{return o.result;}),
+                        Codec.BOOL.optionalFieldOf("consume").forGetter(o -> Optional.of(o.consumeToolOnCraft)),
+                        Codec.BOOL.optionalFieldOf("require_heat").forGetter(o -> Optional.of(o.requireHeat)),
+                        Codec.INT.optionalFieldOf("damages").forGetter(o -> Optional.of(o.toolDmgAmount))
                 );
                 Objects.requireNonNull(recipeFactory);
                 return var10000.apply(instance, recipeFactory::create);
@@ -74,9 +77,11 @@ public class WorkstationRecipe extends CuttingRecipe {
             Ingredient ingredient = Ingredient.fromPacket(packetByteBuf);
             Ingredient rtool = Ingredient.fromPacket(packetByteBuf);
             ItemStack itemStack = packetByteBuf.readItemStack();
-            SoundEvent e = Registries.SOUND_EVENT.get(packetByteBuf.readIdentifier());
+            Identifier e = packetByteBuf.readIdentifier();
             boolean consume = packetByteBuf.readBoolean();
-            return this.recipeFactory.create(string, ingredient, Optional.of(rtool), Optional.ofNullable(e), itemStack, Optional.of(consume));
+            boolean heated = packetByteBuf.readBoolean();
+            int dmg = packetByteBuf.readInt();
+            return this.recipeFactory.create(string, ingredient, Optional.of(rtool), Optional.ofNullable(e), itemStack, Optional.of(consume), Optional.of(heated), Optional.of(dmg));
         }
 
         private final Codec<T> codec;
@@ -89,11 +94,14 @@ public class WorkstationRecipe extends CuttingRecipe {
             cuttingRecipe.ingredient.write(packetByteBuf);
             cuttingRecipe.requiredTool.write(packetByteBuf);
             packetByteBuf.writeItemStack(cuttingRecipe.result);
+            packetByteBuf.writeIdentifier(cuttingRecipe.onCraftSound);
             packetByteBuf.writeBoolean(cuttingRecipe.consumeToolOnCraft);
+            packetByteBuf.writeBoolean(cuttingRecipe.requireHeat);
+            packetByteBuf.writeInt(cuttingRecipe.toolDmgAmount);
         }
 
         public interface RecipeFactory<T extends WorkstationRecipe> {
-            T create(String group, Ingredient input, Optional<Ingredient> tool, Optional<SoundEvent> onCraftSound, ItemStack output, Optional<Boolean> consume);
+            T create(String group, Ingredient input, Optional<Ingredient> tool, Optional<Identifier> onCraftSound, ItemStack output, Optional<Boolean> consume, Optional<Boolean> requireHeat, Optional<Integer> toolDmg);
         }
     }
 }

@@ -6,6 +6,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
@@ -44,6 +45,12 @@ public class PartiallySubmergedBlock extends TallPlantBlock implements Waterlogg
         SHAPE = Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
     }
 
+    @Nullable
+    @Override
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        return super.getPlacementState(ctx);
+    }
+
     @Override
     public FluidState getFluidState(BlockState state) {
         if (state.get(HALF) == DoubleBlockHalf.UPPER || !state.get(WATERLOGGED)) {
@@ -54,10 +61,6 @@ public class PartiallySubmergedBlock extends TallPlantBlock implements Waterlogg
 
     @Override
     public boolean canFillWithFluid(@Nullable PlayerEntity player, BlockView world, BlockPos pos, BlockState state, Fluid fluid) {
-        return (!(Boolean)state.get(Properties.WATERLOGGED) && fluid == Fluids.WATER) && state.get(HALF) == DoubleBlockHalf.UPPER;
-    }
-    @Override
-    public boolean tryFillWithFluid(WorldAccess world, BlockPos pos, BlockState state, FluidState fluidState) {
-        return false;
+        return (!(Boolean)state.get(Properties.WATERLOGGED) && fluid == Fluids.WATER) && state.get(HALF) == DoubleBlockHalf.LOWER;
     }
 }

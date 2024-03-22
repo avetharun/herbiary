@@ -89,6 +89,9 @@
       "model": "al_herbiary:block/spruce_planter",
       "uvlock": true,
       "y": 180
+    },
+    "facing=up": {
+      "model": "al_herbiary:block/spruce_planter_attached"
     }
   }
 }

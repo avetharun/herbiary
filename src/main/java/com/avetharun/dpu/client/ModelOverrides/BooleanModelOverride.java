@@ -29,12 +29,8 @@ public class BooleanModelOverride implements ClampedModelPredicateProvider {
         if (predicate == null) {return 0;}
         return predicate.apply(s, w, e, seed) ? 0.07991f * thisOffset : 0f;
     }
-    public static ModelTransformationMode getTransformationModeFor(ItemStack stack) {
-        return alib.getMixinField(stack, "transformationMode");
-    }
-
     public static boolean isRenderingInGUI(ItemStack stack) {
-        return currentModelTransform == ModelTransformationMode.GUI;
+        return currentModelTransform == ModelTransformationMode.GUI && !isRenderingInHandAny(stack);
     }
     public static boolean isRenderingInHotbar(ItemStack stack) {
         boolean bl1 = (boolean)alib.getMixinField(stack, "isBeingRenderedInHotbar") && currentModelTransform == ModelTransformationMode.GUI;

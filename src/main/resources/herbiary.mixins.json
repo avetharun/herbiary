@@ -6,6 +6,7 @@
   "mixins": [
     "Block.AbstractBlock_SettingsMixin",
     "Block.BlockPlaceOnMixins$CropBlockMixin",
+    "Block.BlockPlaceOnMixins$PlantBlockMixin",
     "Block.BlocksMixin",
     "Block.CampfireBlockEntityMixin",
     "Block.CampfireMixin",
@@ -26,7 +27,6 @@
     "Item.WritableBookItemMixin",
     "Item.WritableBookItemMixin$WrittenBookItemMixin",
     "Other.SeasonsChatInitMixin",
-    "Rendering.ClientTimerMixin",
     "Rendering.CraftingScreenHandlerMixin",
     "Worldgen.WorldPresetMixin",
     "Worldgen.WorldPresetMixin$WorldPreset_RegistrarMixin"

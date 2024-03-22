@@ -86,7 +86,6 @@ public class SmallBackpackItem extends Item {
                     BackpackBlockEntity be = new BackpackBlockEntity(posToPlace, bs);
                     context.getWorld().addBlockEntity(be);
                 }
-                ;
                 var bpe = context.getWorld().getBlockEntity(posToPlace, ModItems.BACKPACK_BLOCK_ENTITY).get();
                 bpe.setBackpack(context.getStack());
                 context.getPlayer().setStackInHand(context.getHand(), ItemStack.EMPTY);

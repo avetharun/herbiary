@@ -1,0 +1,67 @@
+{
+	"credit": "Made with Blockbench",
+	"textures": {
+		"soil": "block/farmland_moist",
+		"particle": "block/spruce_planks",
+		"top": "block/spruce_planks"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 8, 16],
+			"faces": {
+				"north": {"uv": [0, 8, 16, 16], "texture": "#top", "cullface": "north"},
+				"east": {"uv": [0, 8, 16, 16], "texture": "#top", "cullface": "east"},
+				"south": {"uv": [0, 8, 16, 16], "texture": "#top", "cullface": "south"},
+				"west": {"uv": [0, 8, 16, 16], "texture": "#top", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#top"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#top", "cullface": "down"}
+			}
+		},
+		{
+			"from": [14, 8, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 2, 8], "texture": "#top", "cullface": "north"},
+				"east": {"uv": [0, 0, 16, 8], "texture": "#top", "cullface": "east"},
+				"south": {"uv": [14, 0, 16, 8], "texture": "#top", "cullface": "south"},
+				"west": {"uv": [0, 0, 16, 8], "texture": "#top"},
+				"up": {"uv": [8, 0, 10, 16], "texture": "#top", "cullface": "up"}
+			}
+		},
+		{
+			"from": [0, 8, 14],
+			"to": [14, 16, 16],
+			"faces": {
+				"north": {"uv": [2, 0, 16, 8], "texture": "#top"},
+				"south": {"uv": [0, 0, 14, 8], "texture": "#top", "cullface": "south"},
+				"west": {"uv": [14, 0, 16, 8], "texture": "#top", "cullface": "west"},
+				"up": {"uv": [0, 8, 14, 10], "texture": "#top", "cullface": "up"}
+			}
+		},
+		{
+			"from": [0, 15, 0],
+			"to": [14, 15, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, -1, 0]},
+			"faces": {
+				"up": {"uv": [0, 0, 14, 14], "texture": "#soil"}
+			}
+		},
+		{
+			"from": [0, 8, 0],
+			"to": [14, 15, 0],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 15.75, 8]},
+			"faces": {
+				"north": {"uv": [2, 0, 16, 7], "rotation": 180, "texture": "#soil"}
+			}
+		},
+		{
+			"from": [0, 8, 0],
+			"to": [0, 15, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 11.75, 5]},
+			"faces": {
+				"west": {"uv": [0, 0, 14, 7], "rotation": 180, "texture": "#soil"}
+			}
+		}
+	]
+}

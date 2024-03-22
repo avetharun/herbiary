@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "al_herbiary:bone_shard"
+    },
+    {
+      "item": "al_herbiary:bone_shard"
+    },
+    {
+      "item": "al_herbiary:bone_shard"
+    },
+    {
+      "item": "al_herbiary:bone_shard"
+    }
+  ],
+  "result": {
+    "item": "minecraft:bone"
+  }
+}

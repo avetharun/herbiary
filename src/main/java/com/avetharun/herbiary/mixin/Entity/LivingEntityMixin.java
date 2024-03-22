@@ -26,6 +26,7 @@ public abstract class LivingEntityMixin {
     }
     @Inject(method="tick", at=@At("TAIL"))
     private void tickPotionEffects(CallbackInfo ci) {
+
         LivingEntity e = (LivingEntity) (Object)this;
         if (!e.getWorld().isClient) {
             assert e.getWorld().getServer() != null;

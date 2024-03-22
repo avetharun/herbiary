@@ -2,8 +2,11 @@
   "type": "al_herbiary:workstation",
   "tool": {"item": "al_herbiary:bone_sewing_needle"},
   "ingredient": {
-    "item": "minecraft:string"
+    "tag": "al_herbiary:string"
   },
-  "result": "al_herbiary:cloth",
+  "result": {
+    "item":"al_herbiary:cloth"
+  },
+  "result_sound": "minecraft:ui.loom.select_pattern",
   "count": 1
 }

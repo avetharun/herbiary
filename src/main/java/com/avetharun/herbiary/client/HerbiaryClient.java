@@ -1,7 +1,7 @@
 package com.avetharun.herbiary.client;
 
 import com.avetharun.herbiary.Herbiary;
-import com.avetharun.herbiary.Items.ItemEntities.HerbiarySpearItemModel;
+import com.avetharun.herbiary.Items.ItemEntities.HerbiarySpearItemRenderer;
 import com.avetharun.herbiary.Items.QuiverItem;
 import com.avetharun.herbiary.client.entity.*;
 import com.avetharun.herbiary.client.particle.FlintSparkParticle;
@@ -36,7 +36,6 @@ import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.InputUtil;
@@ -66,7 +65,6 @@ public class HerbiaryClient implements ClientModInitializer {
     public static boolean CanBreakVanillaBlocks = true;
     public static boolean IsAllowedToPlaceHerbBlocks = false;
     public static boolean CanMineStoneLikeBlocks = false;
-    public static final EntityModelLayer MODEL_SPEAR_LAYER = new EntityModelLayer(new Identifier("al_herbiary", "spear_entity"), "spear");
 
     private void onRenderHud(DrawContext matrixStack, float v) {
         // Render the overlay
@@ -124,12 +122,11 @@ public class HerbiaryClient implements ClientModInitializer {
 
         EntityRendererRegistry.register(ModEntityTypes.OWL_ENTITY_TYPE, OwlEntityRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.FIELD_MOUSE_ENTITY_TYPE, FieldMouseEntityRenderer::new);
-        EntityRendererRegistry.register(ModItems.SPEAR_ENTITY_TYPE, HerbiarySpearItemModel::new);
+        EntityRendererRegistry.register(ModItems.SPEAR_ENTITY_TYPE, HerbiarySpearItemRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.TENT_ENTITY_TYPE, TentEntityRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.ROPE_TRAP_ENTITY_TYPE, RopeTrapEntityRenderer::new);
 
         EntityRendererRegistry.register(ModEntityTypes.TENT_STORAGE_ENTITY_ENTITY_TYPE, TentSubEntityRenderer::new);
-        EntityModelLayerRegistry.registerModelLayer(MODEL_SPEAR_LAYER, HerbiarySpearItemModel::getTexturedModelData);
         ModelLoadingRegistry.INSTANCE.registerModelProvider(((manager, out) -> out.accept(new ModelIdentifier(new Identifier("al_herbiary", "spear_inventory"), "inventory"))));
 
 
@@ -161,6 +158,8 @@ public class HerbiaryClient implements ClientModInitializer {
                 client.inGameHud.setSubtitle(Text.literal("Set arrow type to " + p.wantedArrowType.getName() + " Arrows."));
                 ClientPlayNetworking.send(Herbiary.SET_ARROW_TYPE_PACKET_ID, buf);
             }
+            if (Herbiary.clientRuntime < 0) {Herbiary.clientRuntime=0;}
+            Herbiary.clientRuntime += MinecraftClient.getInstance().getTickDelta();
         });
     }
     public static boolean isModelTransformationInHand(ModelTransformationMode mode) {

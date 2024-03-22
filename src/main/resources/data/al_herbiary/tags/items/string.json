@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "al_herbiary:plant_string",
+    "al_herbiary:sinew",
+    "minecraft:string"
+  ]
+}

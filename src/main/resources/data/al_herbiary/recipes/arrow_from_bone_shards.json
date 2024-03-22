@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "minecraft:stick"
+    },
+    "X": [{"item": "al_herbiary:bone_shard"}],
+    "!": {"item": "minecraft:feather"}
+  },
+  "pattern": [
+    " X ",
+    " # ",
+    " ! "
+  ],
+  "result": {
+    "item": "minecraft:arrow",
+    "count": 1
+  }
+}
